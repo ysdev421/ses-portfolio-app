@@ -123,6 +123,19 @@ function App() {
 
       {/* メインコンテンツ */}
       <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        {currentPage === 'dashboard' && (
+          <Dashboard
+            user={user}
+            onNavigate={(page, data) => {
+              if (page === 'project-detail' && data) {
+                handleViewProject(data);
+              } else {
+                setCurrentPage(page);
+              }
+            }}
+          />
+        )}
+
         {currentPage === 'projects' && (
           <ProjectList 
             user={user}

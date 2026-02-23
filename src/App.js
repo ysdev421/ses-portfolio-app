@@ -176,7 +176,6 @@ function App() {
         {currentPage === 'career-sheet' && (
           <CareerSheet
             user={user}
-            onNavigate={(page) => setCurrentPage(page)}
           />
         )}
 

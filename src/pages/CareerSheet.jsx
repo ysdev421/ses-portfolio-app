@@ -15,7 +15,7 @@ const csvEscape = (value) => {
   return /[",\n]/.test(escaped) ? `"${escaped}"` : escaped;
 };
 
-export default function CareerSheet({ user, onNavigate }) {
+export default function CareerSheet({ user }) {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -125,12 +125,6 @@ export default function CareerSheet({ user, onNavigate }) {
             className="bg-slate-700 hover:bg-slate-600 text-white font-semibold px-4 py-2 rounded transition-colors"
           >
             印刷 / PDF保存
-          </button>
-          <button
-            onClick={() => onNavigate('dashboard')}
-            className="bg-slate-700 hover:bg-slate-600 text-white font-semibold px-4 py-2 rounded transition-colors"
-          >
-            ダッシュボードへ
           </button>
         </div>
       </div>

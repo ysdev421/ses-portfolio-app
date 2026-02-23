@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { auth } from './firebaseConfig';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import AuthPage from './pages/AuthPage';
+import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
 import CareerSheet from './pages/CareerSheet';
 import ProjectForm from './components/ProjectForm';
@@ -15,6 +16,7 @@ function App() {
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [refreshKey, setRefreshKey] = useState(0);
   const [selectedProject, setSelectedProject] = useState(null);
+  const [authMode, setAuthMode] = useState(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -28,6 +30,7 @@ function App() {
     try {
       await signOut(auth);
       setUser(null);
+      setAuthMode(null);
     } catch (error) {
       console.error('ログアウトエラー:', error);
     }
@@ -64,7 +67,21 @@ function App() {
   }
 
   if (!user) {
-    return <AuthPage />;
+    if (!authMode) {
+      return (
+        <LandingPage
+          onStartSignup={() => setAuthMode('signup')}
+          onStartLogin={() => setAuthMode('login')}
+        />
+      );
+    }
+
+    return (
+      <AuthPage
+        initialMode={authMode}
+        onBack={() => setAuthMode(null)}
+      />
+    );
   }
 
   return (

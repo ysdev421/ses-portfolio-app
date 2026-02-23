@@ -1,18 +1,26 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { auth } from '../firebaseConfig';
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
+  signInWithRedirect,
 } from 'firebase/auth';
 
-export default function AuthPage() {
-  const [isLogin, setIsLogin] = useState(true);
+export default function AuthPage({ initialMode = 'login', onBack }) {
+  const [isLogin, setIsLogin] = useState(initialMode !== 'signup');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setIsLogin(initialMode !== 'signup');
+    setError('');
+    setEmail('');
+    setPassword('');
+  }, [initialMode]);
 
   const handleAuth = async (e) => {
     e.preventDefault();
@@ -39,7 +47,17 @@ export default function AuthPage() {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
     } catch (err) {
-      setError(err.message);
+      if (err?.code === 'auth/popup-blocked' || err?.code === 'auth/cancelled-popup-request') {
+        try {
+          const provider = new GoogleAuthProvider();
+          await signInWithRedirect(auth, provider);
+          return;
+        } catch (redirectErr) {
+          setError(redirectErr.message);
+        }
+      } else {
+        setError(err.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -48,6 +66,14 @@ export default function AuthPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center px-4">
       <div className="bg-slate-900 rounded-lg shadow-2xl p-8 max-w-md w-full border border-slate-700">
+        {onBack && (
+          <button
+            onClick={onBack}
+            className="text-slate-400 hover:text-white text-sm mb-4 transition-colors"
+          >
+            ← サービス紹介へ戻る
+          </button>
+        )}
         <h1 className="text-3xl font-serif font-bold text-amber-400 mb-2 text-center">SES キャリア記録</h1>
         <p className="text-slate-400 text-center mb-8">案件の実績を管理して転職活動をスマートに</p>
 

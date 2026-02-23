@@ -149,6 +149,21 @@ export default function Dashboard({ user, onNavigate }) {
         </div>
       )}
 
+      {stats.totalProjects === 0 && (
+        <div className="bg-amber-500/10 border border-amber-500/40 rounded-lg p-6 mb-8">
+          <p className="text-amber-300 font-semibold text-lg">最初に案件を1件登録しましょう</p>
+          <p className="text-slate-300 text-sm mt-2">
+            参画期間・役割・スキルを入れると、経験年数やキャリアシートが自動で整理されます。
+          </p>
+          <button
+            onClick={() => onNavigate('add-project')}
+            className="mt-4 bg-amber-500 hover:bg-amber-600 text-white font-bold px-5 py-2 rounded transition-colors"
+          >
+            最初の案件を登録する
+          </button>
+        </div>
+      )}
+
       {/* 統計カード */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         <div className="bg-gradient-to-br from-slate-800 to-slate-700 border border-slate-700 rounded-lg p-6 hover:border-amber-500 transition-all">

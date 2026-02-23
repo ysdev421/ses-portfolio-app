@@ -1,10 +1,33 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { getProjects, deleteProject } from '../services/firestoreService';
 
+const parseDateInput = (value) => {
+  if (!value) return null;
+  const normalized = String(value).trim().replace(/\./g, '/').replace(/-/g, '/');
+  const m = normalized.match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})$/);
+  if (!m) return null;
+
+  const y = Number(m[1]);
+  const mo = Number(m[2]);
+  const d = Number(m[3]);
+  const dt = new Date(y, mo - 1, d);
+  if (
+    Number.isNaN(dt.getTime()) ||
+    dt.getFullYear() !== y ||
+    dt.getMonth() !== mo - 1 ||
+    dt.getDate() !== d
+  ) {
+    return null;
+  }
+  return dt;
+};
+
 const isActive = (project) => {
   if (!project.endDate) return true;
   return new Date(project.endDate) >= new Date();
 };
+
+const slashDate = (value) => (value || '').replace(/-/g, '/');
 
 export default function ProjectList({ user, onAddProject, onViewProject, onRefresh }) {
   const [projects, setProjects] = useState([]);
@@ -47,7 +70,7 @@ export default function ProjectList({ user, onAddProject, onViewProject, onRefre
       showToast('案件を削除しました');
       loadProjects();
     } catch (error) {
-      showToast('削除に失敗しました: ' + error.message, 'error');
+      showToast(`削除に失敗しました: ${error.message}`, 'error');
     }
   };
 
@@ -65,8 +88,8 @@ export default function ProjectList({ user, onAddProject, onViewProject, onRefre
 
   const filteredProjects = useMemo(() => {
     const keywordNorm = keyword.trim().toLowerCase();
-    const from = fromDate ? new Date(fromDate) : null;
-    const to = toDate ? new Date(toDate) : null;
+    const from = parseDateInput(fromDate);
+    const to = parseDateInput(toDate);
 
     return projects.filter((project) => {
       if (keywordNorm) {
@@ -84,13 +107,8 @@ export default function ProjectList({ user, onAddProject, onViewProject, onRefre
         if (!haystack.includes(keywordNorm)) return false;
       }
 
-      if (techFilter && !(project.skills || []).includes(techFilter)) {
-        return false;
-      }
-
-      if (phaseFilter && !(project.phases || []).includes(phaseFilter)) {
-        return false;
-      }
+      if (techFilter && !(project.skills || []).includes(techFilter)) return false;
+      if (phaseFilter && !(project.phases || []).includes(phaseFilter)) return false;
 
       if (from || to) {
         const start = project.startDate ? new Date(project.startDate) : null;
@@ -116,45 +134,29 @@ export default function ProjectList({ user, onAddProject, onViewProject, onRefre
           : 'bg-slate-800 border border-slate-700 hover:border-slate-500 opacity-80'
       }`}
     >
-      {/* ヘッダー */}
       <div className="flex justify-between items-start mb-2">
         <h3 className="text-lg font-semibold text-amber-400 group-hover:text-amber-300 leading-tight pr-2">
           {project.projectName}
         </h3>
-        {active ? (
-          <span className="shrink-0 bg-green-900/60 text-green-400 text-xs font-bold px-2 py-0.5 rounded-full border border-green-700">
-            参画中
-          </span>
-        ) : (
-          <span className="shrink-0 bg-slate-700 text-slate-400 text-xs px-2 py-0.5 rounded-full">
-            終了
-          </span>
-        )}
+        <span
+          className={`shrink-0 text-xs px-2 py-0.5 rounded-full border ${
+            active
+              ? 'bg-green-900/60 text-green-400 border-green-700'
+              : 'bg-slate-700 text-slate-400 border-slate-600'
+          }`}
+        >
+          {active ? '参画中' : '終了'}
+        </span>
       </div>
 
       <p className="text-slate-400 text-sm mb-1">{project.company}</p>
-
-      {/* 期間 */}
       <p className="text-slate-500 text-xs mb-2">
         {project.startDate || '-'} 〜 {project.endDate || '現在'}
       </p>
 
-      {/* 商流バッジ */}
-      {project.contractTier && project.contractTier !== 'direct' && (
-        <p className="text-slate-500 text-xs mb-2">
-          {{
-            '1st': '一次請け',
-            '2nd': '二次請け',
-            '3rd': '三次請け',
-            '4th+': '四次請け以上',
-          }[project.contractTier]}
-        </p>
-      )}
-
-      {/* スキル */}
       {project.skills && project.skills.length > 0 && (
         <div className="flex flex-wrap gap-1 mt-2 mb-3">
-          {project.skills.slice(0, 5).map(skill => (
+          {project.skills.slice(0, 5).map((skill) => (
             <span key={skill} className="text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded">
               {skill}
             </span>
@@ -165,14 +167,11 @@ export default function ProjectList({ user, onAddProject, onViewProject, onRefre
         </div>
       )}
 
-      {/* ボタン */}
-      <div className="flex gap-2 mt-3" onClick={e => e.stopPropagation()}>
+      <div className="flex gap-2 mt-3" onClick={(e) => e.stopPropagation()}>
         <button
           onClick={() => onViewProject(project)}
           className={`flex-1 text-white text-sm font-semibold px-3 py-1.5 rounded transition-colors ${
-            active
-              ? 'bg-green-700 hover:bg-green-600'
-              : 'bg-blue-600 hover:bg-blue-700'
+            active ? 'bg-green-700 hover:bg-green-600' : 'bg-blue-600 hover:bg-blue-700'
           }`}
         >
           {active ? '日記を書く / 詳細' : '詳細'}
@@ -189,11 +188,12 @@ export default function ProjectList({ user, onAddProject, onViewProject, onRefre
 
   return (
     <div>
-      {/* トースト */}
       {toast.msg && (
-        <div className={`fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-xl font-semibold transition-all ${
-          toast.type === 'error' ? 'bg-red-600 text-white' : 'bg-green-600 text-white'
-        }`}>
+        <div
+          className={`fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-xl font-semibold transition-all ${
+            toast.type === 'error' ? 'bg-red-600 text-white' : 'bg-green-600 text-white'
+          }`}
+        >
           {toast.msg}
         </div>
       )}
@@ -227,64 +227,72 @@ export default function ProjectList({ user, onAddProject, onViewProject, onRefre
               <p className="text-slate-300 text-sm font-semibold">検索・フィルタ</p>
               <span className="text-slate-400 text-sm">{isFilterOpen ? '▲' : '▼'}</span>
             </button>
+
             {isFilterOpen && (
-            <div id="project-filter-panel" className="mt-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
-              <input
-                type="text"
-                value={keyword}
-                onChange={(e) => setKeyword(e.target.value)}
-                placeholder="キーワード（案件名・会社名など）"
-                className="bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white placeholder-slate-500"
-              />
-              <select
-                value={techFilter}
-                onChange={(e) => setTechFilter(e.target.value)}
-                className="bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white"
-              >
-                <option value="">技術（すべて）</option>
-                {techOptions.map((tech) => (
-                  <option key={tech} value={tech}>{tech}</option>
-                ))}
-              </select>
-              <select
-                value={phaseFilter}
-                onChange={(e) => setPhaseFilter(e.target.value)}
-                className="bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white"
-              >
-                <option value="">工程（すべて）</option>
-                {phaseOptions.map((phase) => (
-                  <option key={phase} value={phase}>{phase}</option>
-                ))}
-              </select>
-              <input
-                type="date"
-                value={fromDate}
-                onChange={(e) => setFromDate(e.target.value)}
-                className="bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white"
-              />
-              <div className="flex gap-2">
+              <div id="project-filter-panel" className="mt-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
                 <input
-                  type="date"
-                  value={toDate}
-                  onChange={(e) => setToDate(e.target.value)}
-                  className="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white"
+                  type="text"
+                  value={keyword}
+                  onChange={(e) => setKeyword(e.target.value)}
+                  placeholder="キーワード（案件名・会社名など）"
+                  className="bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white placeholder-slate-500"
                 />
-                <button
-                  type="button"
-                  onClick={() => {
-                    setKeyword('');
-                    setTechFilter('');
-                    setPhaseFilter('');
-                    setFromDate('');
-                    setToDate('');
-                  }}
-                  className="shrink-0 bg-slate-600 hover:bg-slate-500 text-white text-sm px-3 py-2 rounded"
+                <select
+                  value={techFilter}
+                  onChange={(e) => setTechFilter(e.target.value)}
+                  className="bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white"
                 >
-                  クリア
-                </button>
+                  <option value="">技術（すべて）</option>
+                  {techOptions.map((tech) => (
+                    <option key={tech} value={tech}>{tech}</option>
+                  ))}
+                </select>
+                <select
+                  value={phaseFilter}
+                  onChange={(e) => setPhaseFilter(e.target.value)}
+                  className="bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white"
+                >
+                  <option value="">工程（すべて）</option>
+                  {phaseOptions.map((phase) => (
+                    <option key={phase} value={phase}>{phase}</option>
+                  ))}
+                </select>
+                <input
+                  type="text"
+                  value={slashDate(fromDate)}
+                  onChange={(e) => setFromDate(e.target.value)}
+                  inputMode="numeric"
+                  pattern="\\d{4}/\\d{1,2}/\\d{1,2}"
+                  placeholder="YYYY/MM/DD"
+                  className="bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white"
+                />
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={slashDate(toDate)}
+                    onChange={(e) => setToDate(e.target.value)}
+                    inputMode="numeric"
+                    pattern="\\d{4}/\\d{1,2}/\\d{1,2}"
+                    placeholder="YYYY/MM/DD"
+                    className="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setKeyword('');
+                      setTechFilter('');
+                      setPhaseFilter('');
+                      setFromDate('');
+                      setToDate('');
+                    }}
+                    className="shrink-0 bg-slate-600 hover:bg-slate-500 text-white text-sm px-3 py-2 rounded"
+                  >
+                    クリア
+                  </button>
+                </div>
               </div>
-            </div>
             )}
+
             <p className="text-slate-400 text-xs mt-3">検索結果: {filteredProjects.length}件</p>
           </section>
 
@@ -294,7 +302,6 @@ export default function ProjectList({ user, onAddProject, onViewProject, onRefre
             </section>
           )}
 
-          {/* 現在の案件 */}
           {activeProjects.length > 0 && (
             <section>
               <div className="flex items-center gap-3 mb-3">
@@ -304,12 +311,11 @@ export default function ProjectList({ user, onAddProject, onViewProject, onRefre
                 </span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {activeProjects.map(p => <ProjectCard key={p.id} project={p} active />)}
+                {activeProjects.map((p) => <ProjectCard key={p.id} project={p} active />)}
               </div>
             </section>
           )}
 
-          {/* 過去の案件 */}
           {pastProjects.length > 0 && (
             <section>
               <div className="flex items-center gap-3 mb-3">
@@ -319,7 +325,7 @@ export default function ProjectList({ user, onAddProject, onViewProject, onRefre
                 </span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {pastProjects.map(p => <ProjectCard key={p.id} project={p} active={false} />)}
+                {pastProjects.map((p) => <ProjectCard key={p.id} project={p} active={false} />)}
               </div>
             </section>
           )}

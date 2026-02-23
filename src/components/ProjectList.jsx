@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+﻿import { useState, useEffect, useCallback, useMemo } from 'react';
 import { getProjects, deleteProject } from '../services/firestoreService';
 
 const isActive = (project) => {
@@ -49,10 +49,6 @@ export default function ProjectList({ user, onAddProject, onViewProject, onRefre
       showToast('削除に失敗しました: ' + error.message, 'error');
     }
   };
-
-  if (false && loading) {
-    return <div className="text-center py-12 text-slate-400">読み込み中...</div>;
-  }
 
   const techOptions = useMemo(() => {
     const set = new Set();

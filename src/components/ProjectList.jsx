@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+﻿import { useState, useEffect, useCallback, useMemo } from 'react';
 import { getProjects, deleteProject } from '../services/firestoreService';
 
 const isActive = (project) => {
@@ -15,6 +15,7 @@ export default function ProjectList({ user, onAddProject, onViewProject, onRefre
   const [phaseFilter, setPhaseFilter] = useState('');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
+  const [isFilterOpen, setIsFilterOpen] = useState(true);
 
   const showToast = (msg, type = 'success') => {
     setToast({ msg, type });
@@ -216,8 +217,18 @@ export default function ProjectList({ user, onAddProject, onViewProject, onRefre
       ) : (
         <div className="space-y-8">
           <section className="bg-slate-800 border border-slate-700 rounded-lg p-4">
-            <p className="text-slate-300 text-sm font-semibold mb-3">検索・フィルタ</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
+            <button
+              type="button"
+              onClick={() => setIsFilterOpen((prev) => !prev)}
+              className="w-full flex items-center justify-between text-left"
+              aria-expanded={isFilterOpen}
+              aria-controls="project-filter-panel"
+            >
+              <p className="text-slate-300 text-sm font-semibold">検索・フィルタ</p>
+              <span className="text-slate-400 text-sm">{isFilterOpen ? '▲' : '▼'}</span>
+            </button>
+            {isFilterOpen && (
+            <div id="project-filter-panel" className="mt-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
               <input
                 type="text"
                 value={keyword}
@@ -273,6 +284,7 @@ export default function ProjectList({ user, onAddProject, onViewProject, onRefre
                 </button>
               </div>
             </div>
+            )}
             <p className="text-slate-400 text-xs mt-3">検索結果: {filteredProjects.length}件</p>
           </section>
 

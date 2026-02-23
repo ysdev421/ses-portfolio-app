@@ -1,4 +1,4 @@
-﻿import './App.css';
+import './App.css';
 import { useEffect, useState } from 'react';
 import { auth } from './firebaseConfig';
 import { onAuthStateChanged, signOut } from 'firebase/auth';

@@ -78,9 +78,7 @@ function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center">
-        <div className="text-amber-400 text-2xl font-serif">読み込み中...</div>
-      </div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800" />
     );
   }
 

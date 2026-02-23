@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { createProject, updateProject } from '../services/firestoreService';
+import { normalizeDateString, toSlashDate } from '../utils/date';
 
 const TECH_OPTIONS = [
   'React', 'Vue.js', 'Angular', 'Node.js', 'Python', 'Java', 'C#', 'PHP',
@@ -22,30 +23,6 @@ const INTERMEDIARY_LABELS = ['一次請け会社', '二次請け会社', '三次
 
 const getIntermediaryCount = (tier) =>
   TIER_OPTIONS.find((t) => t.value === tier)?.intermediaries ?? 0;
-
-const normalizeDateString = (value) => {
-  if (!value) return '';
-  const normalized = String(value).trim().replace(/\./g, '/').replace(/-/g, '/');
-  const m = normalized.match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})$/);
-  if (!m) return '';
-
-  const y = Number(m[1]);
-  const mo = Number(m[2]);
-  const d = Number(m[3]);
-  const dt = new Date(y, mo - 1, d);
-  if (
-    Number.isNaN(dt.getTime()) ||
-    dt.getFullYear() !== y ||
-    dt.getMonth() !== mo - 1 ||
-    dt.getDate() !== d
-  ) {
-    return '';
-  }
-
-  return `${String(y).padStart(4, '0')}-${String(mo).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-};
-
-const slashDate = (value) => (value || '').replace(/-/g, '/');
 
 export default function ProjectForm({ user, project, onSuccess, onCancel }) {
   const [loading, setLoading] = useState(false);
@@ -270,11 +247,11 @@ export default function ProjectForm({ user, project, onSuccess, onCancel }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="min-w-0">
             <label className="block text-slate-300 mb-2 font-semibold">開始日 *</label>
-            <input type="text" name="startDate" value={slashDate(formData.startDate)} onChange={handleChange} inputMode="numeric" pattern="\\d{4}/\\d{1,2}/\\d{1,2}" placeholder="YYYY/MM/DD" required className="w-full min-w-0 bg-slate-700 border border-slate-600 rounded px-4 py-2 text-white" />
+            <input type="text" name="startDate" value={toSlashDate(formData.startDate)} onChange={handleChange} inputMode="numeric" pattern="\\d{4}/\\d{1,2}/\\d{1,2}" placeholder="YYYY/MM/DD" required className="w-full min-w-0 bg-slate-700 border border-slate-600 rounded px-4 py-2 text-white" />
           </div>
           <div className="min-w-0">
             <label className="block text-slate-300 mb-2 font-semibold">終了日</label>
-            <input type="text" name="endDate" value={slashDate(formData.endDate)} onChange={handleChange} inputMode="numeric" pattern="\\d{4}/\\d{1,2}/\\d{1,2}" placeholder="YYYY/MM/DD" className="w-full min-w-0 bg-slate-700 border border-slate-600 rounded px-4 py-2 text-white" />
+            <input type="text" name="endDate" value={toSlashDate(formData.endDate)} onChange={handleChange} inputMode="numeric" pattern="\\d{4}/\\d{1,2}/\\d{1,2}" placeholder="YYYY/MM/DD" className="w-full min-w-0 bg-slate-700 border border-slate-600 rounded px-4 py-2 text-white" />
           </div>
         </div>
 
@@ -308,7 +285,7 @@ export default function ProjectForm({ user, project, onSuccess, onCancel }) {
             <div className="space-y-2 bg-slate-700/50 border border-slate-600 rounded-lg p-4">
               {formData.rateHistory.map((entry, idx) => (
                 <div key={idx} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_2fr_auto] gap-2 items-center">
-                  <input type="text" value={slashDate(entry.date)} onChange={(e) => updateRateEntry(idx, 'date', e.target.value)} inputMode="numeric" pattern="\\d{4}/\\d{1,2}/\\d{1,2}" placeholder="YYYY/MM/DD" className="bg-slate-700 border border-slate-600 rounded px-2 py-1.5 text-white text-sm" />
+                  <input type="text" value={toSlashDate(entry.date)} onChange={(e) => updateRateEntry(idx, 'date', e.target.value)} inputMode="numeric" pattern="\\d{4}/\\d{1,2}/\\d{1,2}" placeholder="YYYY/MM/DD" className="bg-slate-700 border border-slate-600 rounded px-2 py-1.5 text-white text-sm" />
                   <input type="number" value={entry.rate} min="0" onChange={(e) => updateRateEntry(idx, 'rate', e.target.value)} className="bg-slate-700 border border-slate-600 rounded px-2 py-1.5 text-white text-sm" placeholder="65" />
                   <input type="text" value={entry.note} onChange={(e) => updateRateEntry(idx, 'note', e.target.value)} className="bg-slate-700 border border-slate-600 rounded px-2 py-1.5 text-white text-sm" placeholder="メモ" />
                   <button type="button" onClick={() => removeRateEntry(idx)} className="text-red-400 hover:text-red-300 text-sm px-1 justify-self-end">削除</button>

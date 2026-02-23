@@ -1,49 +1,18 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { getProjects, deleteProject } from '../services/firestoreService';
-
-const parseDateInput = (value) => {
-  if (!value) return null;
-  const normalized = String(value).trim().replace(/\./g, '/').replace(/-/g, '/');
-  const m = normalized.match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})$/);
-  if (!m) return null;
-
-  const y = Number(m[1]);
-  const mo = Number(m[2]);
-  const d = Number(m[3]);
-  const dt = new Date(y, mo - 1, d);
-  if (
-    Number.isNaN(dt.getTime()) ||
-    dt.getFullYear() !== y ||
-    dt.getMonth() !== mo - 1 ||
-    dt.getDate() !== d
-  ) {
-    return null;
-  }
-  return dt;
-};
-
-const isActive = (project) => {
-  if (!project.endDate) return true;
-  return new Date(project.endDate) >= new Date();
-};
-
-const slashDate = (value) => (value || '').replace(/-/g, '/');
+import useToast from '../hooks/useToast';
+import { parseDateInput, toSlashDate, isActiveProject } from '../utils/date';
 
 export default function ProjectList({ user, onAddProject, onViewProject, onRefresh }) {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [toast, setToast] = useState({ msg: '', type: '' });
+  const { toast, showToast } = useToast();
   const [keyword, setKeyword] = useState('');
   const [techFilter, setTechFilter] = useState('');
   const [phaseFilter, setPhaseFilter] = useState('');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [isFilterOpen, setIsFilterOpen] = useState(true);
-
-  const showToast = (msg, type = 'success') => {
-    setToast({ msg, type });
-    setTimeout(() => setToast({ msg: '', type: '' }), 3000);
-  };
 
   const loadProjects = useCallback(async () => {
     if (!user) return;
@@ -122,8 +91,8 @@ export default function ProjectList({ user, onAddProject, onViewProject, onRefre
     });
   }, [projects, keyword, techFilter, phaseFilter, fromDate, toDate]);
 
-  const activeProjects = filteredProjects.filter(isActive);
-  const pastProjects = filteredProjects.filter((p) => !isActive(p));
+  const activeProjects = filteredProjects.filter(isActiveProject);
+  const pastProjects = filteredProjects.filter((p) => !isActiveProject(p));
 
   const ProjectCard = ({ project, active }) => (
     <div
@@ -259,7 +228,7 @@ export default function ProjectList({ user, onAddProject, onViewProject, onRefre
                 </select>
                 <input
                   type="text"
-                  value={slashDate(fromDate)}
+                  value={toSlashDate(fromDate)}
                   onChange={(e) => setFromDate(e.target.value)}
                   inputMode="numeric"
                   pattern="\\d{4}/\\d{1,2}/\\d{1,2}"
@@ -269,7 +238,7 @@ export default function ProjectList({ user, onAddProject, onViewProject, onRefre
                 <div className="flex gap-2">
                   <input
                     type="text"
-                    value={slashDate(toDate)}
+                    value={toSlashDate(toDate)}
                     onChange={(e) => setToDate(e.target.value)}
                     inputMode="numeric"
                     pattern="\\d{4}/\\d{1,2}/\\d{1,2}"

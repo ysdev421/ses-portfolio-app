@@ -35,18 +35,6 @@ export default function ContactList({ user, mode = 'mine' }) {
     load();
   }, [mode, user?.uid]);
 
-  if (loading) {
-    return <p className="text-slate-400">読み込み中...</p>;
-  }
-
-  if (error) {
-    return <p className="text-red-300">{error}</p>;
-  }
-
-  if (items.length === 0) {
-    return <p className="text-slate-400">お問い合わせはまだありません。</p>;
-  }
-
   const handleAdminUpdate = async (id, patch) => {
     try {
       setSavingId(id);
@@ -62,6 +50,10 @@ export default function ContactList({ user, mode = 'mine' }) {
     }
   };
 
+  if (loading) return <p className="text-slate-400">読み込み中...</p>;
+  if (error) return <p className="text-red-300">{error}</p>;
+  if (items.length === 0) return <p className="text-slate-400">問い合わせはまだありません。</p>;
+
   return (
     <div className="space-y-3">
       {items.map((item) => (
@@ -70,13 +62,16 @@ export default function ContactList({ user, mode = 'mine' }) {
             <span className="text-xs bg-slate-800 border border-slate-600 rounded px-2 py-0.5">{item.status || 'new'}</span>
             <span className="text-slate-400 text-xs">{formatDateTime(item.createdAt)}</span>
           </div>
+
           <p className="text-white font-semibold">{item.name || '-'}</p>
           <p className="text-slate-300 text-sm">{item.email || '-'}</p>
           {mode === 'all' && (
-            <p className="text-slate-400 text-xs mt-1">送信ユーザー: {item.userEmail || item.userId}</p>
+            <p className="text-slate-400 text-xs mt-1">問い合わせユーザー: {item.userEmail || item.userId}</p>
           )}
           {item.company && <p className="text-slate-400 text-xs mt-1">会社名: {item.company}</p>}
+
           <p className="text-slate-200 text-sm mt-3 whitespace-pre-wrap">{item.message || '-'}</p>
+
           {mode === 'all' && (
             <div className="mt-4 space-y-2">
               <div className="flex flex-wrap items-center gap-2">
@@ -96,10 +91,9 @@ export default function ContactList({ user, mode = 'mine' }) {
                   <option value="in_progress">in_progress</option>
                   <option value="resolved">resolved</option>
                 </select>
-                {savingId === item.id && (
-                  <span className="text-slate-400 text-xs">更新中...</span>
-                )}
+                {savingId === item.id && <span className="text-slate-400 text-xs">更新中...</span>}
               </div>
+
               <textarea
                 value={item.adminNote || ''}
                 onChange={(e) =>
@@ -110,14 +104,30 @@ export default function ContactList({ user, mode = 'mine' }) {
                   )
                 }
                 rows={2}
-                placeholder="管理メモ（対応内容など）"
+                placeholder="管理メモ（社内用）"
                 className="w-full bg-slate-800 border border-slate-600 rounded px-2 py-1.5 text-sm text-white"
               />
+
+              <textarea
+                value={item.adminReply || ''}
+                onChange={(e) =>
+                  setItems((prev) =>
+                    prev.map((v) =>
+                      v.id === item.id ? { ...v, adminReply: e.target.value } : v
+                    )
+                  )
+                }
+                rows={3}
+                placeholder="ユーザーへの返信"
+                className="w-full bg-slate-800 border border-slate-600 rounded px-2 py-1.5 text-sm text-white"
+              />
+
               <button
                 type="button"
                 onClick={() =>
                   handleAdminUpdate(item.id, {
                     adminNote: item.adminNote || '',
+                    adminReply: item.adminReply || '',
                     noteUpdatedBy: user?.email || '',
                     noteUpdatedAtClient: new Date().toISOString(),
                   })
@@ -125,8 +135,20 @@ export default function ContactList({ user, mode = 'mine' }) {
                 disabled={savingId === item.id}
                 className="bg-slate-600 hover:bg-slate-500 disabled:bg-slate-700 text-white text-sm px-3 py-1 rounded"
               >
-                メモ保存
+                保存
               </button>
+            </div>
+          )}
+
+          {mode === 'mine' && item.adminReply && (
+            <div className="mt-4 bg-slate-800 border border-slate-600 rounded p-3">
+              <p className="text-amber-400 text-xs font-semibold mb-1">運営からの返信</p>
+              <p className="text-slate-200 text-sm whitespace-pre-wrap">{item.adminReply}</p>
+              {(item.noteUpdatedAtClient || item.updatedAt) && (
+                <p className="text-slate-500 text-xs mt-2">
+                  更新: {formatDateTime(item.noteUpdatedAtClient || item.updatedAt)}
+                </p>
+              )}
             </div>
           )}
         </div>

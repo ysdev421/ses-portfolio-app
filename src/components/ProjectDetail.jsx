@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getEntries, deleteEntry } from '../services/firestoreService';
 import EntryForm from './EntryForm';
+import useToast from '../hooks/useToast';
+import { isActiveProject } from '../utils/date';
 
 const TIER_LABELS = {
   direct: '直接取引',
@@ -17,12 +19,7 @@ export default function ProjectDetail({ user, project, onBack, onEdit }) {
   const [loading, setLoading] = useState(true);
   const [showEntryForm, setShowEntryForm] = useState(false);
   const [editingEntry, setEditingEntry] = useState(null);
-  const [toast, setToast] = useState({ msg: '', type: '' });
-
-  const showToast = (msg, type = 'success') => {
-    setToast({ msg, type });
-    setTimeout(() => setToast({ msg: '', type: '' }), 3000);
-  };
+  const { toast, showToast } = useToast();
 
   const loadEntries = useCallback(async () => {
     if (!project?.id) return;
@@ -60,7 +57,7 @@ export default function ProjectDetail({ user, project, onBack, onEdit }) {
     );
   }
 
-  const isActive = !project.endDate || new Date(project.endDate) >= new Date();
+  const isActive = isActiveProject(project);
 
   const formatDate = (d) => {
     if (!d) return '-';

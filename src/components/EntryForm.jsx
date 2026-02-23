@@ -1,34 +1,6 @@
 import { useState, useEffect } from 'react';
 import { createEntry, updateEntry } from '../services/firestoreService';
-
-const toYmd = (date) => {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
-};
-
-const normalizeDateString = (value) => {
-  if (!value) return '';
-  const normalized = value.trim().replace(/\./g, '/').replace(/-/g, '/');
-  const m = normalized.match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})$/);
-  if (!m) return '';
-
-  const y = Number(m[1]);
-  const mo = Number(m[2]);
-  const d = Number(m[3]);
-  const dt = new Date(y, mo - 1, d);
-  if (
-    Number.isNaN(dt.getTime()) ||
-    dt.getFullYear() !== y ||
-    dt.getMonth() !== mo - 1 ||
-    dt.getDate() !== d
-  ) {
-    return '';
-  }
-
-  return `${String(y).padStart(4, '0')}-${String(mo).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-};
+import { toYmd, normalizeDateString, toSlashDate } from '../utils/date';
 
 export default function EntryForm({ userId, projectId, entry, onSuccess, onCancel }) {
   const [loading, setLoading] = useState(false);
@@ -132,7 +104,7 @@ export default function EntryForm({ userId, projectId, entry, onSuccess, onCance
           <input
             type="text"
             name="date"
-            value={formData.date.replace(/-/g, '/')}
+            value={toSlashDate(formData.date)}
             onChange={handleChange}
             inputMode="numeric"
             pattern="\\d{4}/\\d{1,2}/\\d{1,2}"

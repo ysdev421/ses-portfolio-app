@@ -1,21 +1,29 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getProjects, deleteProject } from '../services/firestoreService';
 
+const isActive = (project) => {
+  if (!project.endDate) return true;
+  return new Date(project.endDate) >= new Date();
+};
+
 export default function ProjectList({ user, onAddProject, onViewProject, onRefresh }) {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [toast, setToast] = useState({ msg: '', type: '' });
+
+  const showToast = (msg, type = 'success') => {
+    setToast({ msg, type });
+    setTimeout(() => setToast({ msg: '', type: '' }), 3000);
+  };
 
   const loadProjects = useCallback(async () => {
     if (!user) return;
     try {
-      console.log('DEBUG: loadProjects called, user.uid:', user.uid);
       setLoading(true);
       const data = await getProjects(user.uid);
-      console.log('✓ 案件リロード:', data.length, '件');
-      console.log('DEBUG: 取得したデータ:', data);
       setProjects(data);
     } catch (error) {
-      console.error('✗ 案件読み込みエラー:', error);
+      console.error('案件読み込みエラー:', error);
     } finally {
       setLoading(false);
     }
@@ -25,15 +33,15 @@ export default function ProjectList({ user, onAddProject, onViewProject, onRefre
     loadProjects();
   }, [loadProjects, onRefresh]);
 
-  const handleDelete = async (projectId) => {
-    if (window.confirm('この案件を削除しますか？')) {
-      try {
-        await deleteProject(projectId);
-        alert('✓ 案件を削除しました');
-        loadProjects();
-      } catch (error) {
-        alert('✗ 削除に失敗しました:' + error.message);
-      }
+  const handleDelete = async (projectId, e) => {
+    e.stopPropagation();
+    if (!window.confirm('この案件を削除しますか？')) return;
+    try {
+      await deleteProject(projectId);
+      showToast('案件を削除しました');
+      loadProjects();
+    } catch (error) {
+      showToast('削除に失敗しました: ' + error.message, 'error');
     }
   };
 
@@ -41,8 +49,100 @@ export default function ProjectList({ user, onAddProject, onViewProject, onRefre
     return <div className="text-center py-12 text-slate-400">読み込み中...</div>;
   }
 
+  const activeProjects = projects.filter(isActive);
+  const pastProjects   = projects.filter(p => !isActive(p));
+
+  const ProjectCard = ({ project, active }) => (
+    <div
+      onClick={() => onViewProject(project)}
+      className={`rounded-lg p-4 cursor-pointer transition-all hover:shadow-lg group ${
+        active
+          ? 'bg-slate-800 border border-green-700 hover:border-green-500'
+          : 'bg-slate-800 border border-slate-700 hover:border-slate-500 opacity-80'
+      }`}
+    >
+      {/* ヘッダー */}
+      <div className="flex justify-between items-start mb-2">
+        <h3 className="text-lg font-semibold text-amber-400 group-hover:text-amber-300 leading-tight pr-2">
+          {project.projectName}
+        </h3>
+        {active ? (
+          <span className="shrink-0 bg-green-900/60 text-green-400 text-xs font-bold px-2 py-0.5 rounded-full border border-green-700">
+            参画中
+          </span>
+        ) : (
+          <span className="shrink-0 bg-slate-700 text-slate-400 text-xs px-2 py-0.5 rounded-full">
+            終了
+          </span>
+        )}
+      </div>
+
+      <p className="text-slate-400 text-sm mb-1">{project.company}</p>
+
+      {/* 期間 */}
+      <p className="text-slate-500 text-xs mb-2">
+        {project.startDate || '-'} 〜 {project.endDate || '現在'}
+      </p>
+
+      {/* 商流バッジ */}
+      {project.contractTier && project.contractTier !== 'direct' && (
+        <p className="text-slate-500 text-xs mb-2">
+          {{
+            '1st': '一次請け',
+            '2nd': '二次請け',
+            '3rd': '三次請け',
+            '4th+': '四次請け以上',
+          }[project.contractTier]}
+        </p>
+      )}
+
+      {/* スキル */}
+      {project.skills && project.skills.length > 0 && (
+        <div className="flex flex-wrap gap-1 mt-2 mb-3">
+          {project.skills.slice(0, 5).map(skill => (
+            <span key={skill} className="text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded">
+              {skill}
+            </span>
+          ))}
+          {project.skills.length > 5 && (
+            <span className="text-xs text-slate-500">+{project.skills.length - 5}</span>
+          )}
+        </div>
+      )}
+
+      {/* ボタン */}
+      <div className="flex gap-2 mt-3" onClick={e => e.stopPropagation()}>
+        <button
+          onClick={() => onViewProject(project)}
+          className={`flex-1 text-white text-sm font-semibold px-3 py-1.5 rounded transition-colors ${
+            active
+              ? 'bg-green-700 hover:bg-green-600'
+              : 'bg-blue-600 hover:bg-blue-700'
+          }`}
+        >
+          {active ? '日記を書く / 詳細' : '詳細'}
+        </button>
+        <button
+          onClick={(e) => handleDelete(project.id, e)}
+          className="bg-slate-700 hover:bg-red-700 text-slate-400 hover:text-white text-sm px-3 py-1.5 rounded transition-colors"
+        >
+          削除
+        </button>
+      </div>
+    </div>
+  );
+
   return (
     <div>
+      {/* トースト */}
+      {toast.msg && (
+        <div className={`fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-xl font-semibold transition-all ${
+          toast.type === 'error' ? 'bg-red-600 text-white' : 'bg-green-600 text-white'
+        }`}>
+          {toast.msg}
+        </div>
+      )}
+
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-serif font-bold text-amber-400">案件一覧</h2>
         <button
@@ -64,40 +164,36 @@ export default function ProjectList({ user, onAddProject, onViewProject, onRefre
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {projects.map(project => (
-            <div key={project.id} className="bg-slate-800 border border-slate-700 rounded-lg p-4 hover:border-amber-500 transition-all">
-              <h3 className="text-lg font-semibold text-amber-400 mb-2">{project.projectName}</h3>
-              <p className="text-slate-400 text-sm mb-1">会社: {project.company}</p>
-              <p className="text-slate-400 text-sm mb-1">役職: {project.role || '未記入'}</p>
-              <p className="text-slate-400 text-sm mb-1">実績時間: {project.workedHours || 0}時間</p>
-              
-              {project.skills && project.skills.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-3 mb-3">
-                  {project.skills.map(skill => (
-                    <span key={skill} className="text-xs bg-amber-500/20 text-amber-300 px-2 py-1 rounded">
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-              )}
-              
-              <div className="flex gap-2 mt-4">
-                <button
-                  onClick={() => onViewProject(project)}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-3 py-1 rounded transition-colors"
-                >
-                  詳細
-                </button>
-                <button
-                  onClick={() => handleDelete(project.id)}
-                  className="flex-1 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold px-3 py-1 rounded transition-colors"
-                >
-                  削除
-                </button>
+        <div className="space-y-8">
+          {/* 現在の案件 */}
+          {activeProjects.length > 0 && (
+            <section>
+              <div className="flex items-center gap-3 mb-3">
+                <h3 className="text-lg font-bold text-green-400">現在参画中</h3>
+                <span className="bg-green-900/40 text-green-400 text-xs px-2 py-0.5 rounded-full border border-green-800">
+                  {activeProjects.length}件
+                </span>
               </div>
-            </div>
-          ))}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {activeProjects.map(p => <ProjectCard key={p.id} project={p} active />)}
+              </div>
+            </section>
+          )}
+
+          {/* 過去の案件 */}
+          {pastProjects.length > 0 && (
+            <section>
+              <div className="flex items-center gap-3 mb-3">
+                <h3 className="text-lg font-bold text-slate-400">過去の案件</h3>
+                <span className="bg-slate-700 text-slate-400 text-xs px-2 py-0.5 rounded-full">
+                  {pastProjects.length}件
+                </span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {pastProjects.map(p => <ProjectCard key={p.id} project={p} active={false} />)}
+              </div>
+            </section>
+          )}
         </div>
       )}
     </div>

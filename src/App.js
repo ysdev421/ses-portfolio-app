@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { auth } from './firebaseConfig';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import AuthPage from './pages/AuthPage';
+import Dashboard from './pages/Dashboard';
 import ProjectForm from './components/ProjectForm';
 import ProjectList from './components/ProjectList';
 import ProjectDetail from './components/ProjectDetail';
@@ -10,7 +11,7 @@ import ProjectDetail from './components/ProjectDetail';
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState('projects');
+  const [currentPage, setCurrentPage] = useState('dashboard');
   const [refreshKey, setRefreshKey] = useState(0);
   const [selectedProject, setSelectedProject] = useState(null);
 
@@ -74,7 +75,7 @@ function App() {
             <div>
               <h1 
                 className="text-3xl font-serif font-bold text-amber-400 cursor-pointer hover:text-amber-300 transition-colors"
-                onClick={() => setCurrentPage('projects')}
+                onClick={() => setCurrentPage('dashboard')}
               >
                 SES キャリア記録
               </h1>
@@ -82,6 +83,16 @@ function App() {
             </div>
             
             <nav className="hidden md:flex gap-6 ml-8">
+              <button
+                onClick={() => setCurrentPage('dashboard')}
+                className={`font-semibold transition-colors py-2 px-4 rounded ${
+                  currentPage === 'dashboard'
+                    ? 'text-amber-400 bg-slate-700'
+                    : 'text-slate-300 hover:text-white hover:bg-slate-700'
+                }`}
+              >
+                ダッシュボード
+              </button>
               <button
                 onClick={() => setCurrentPage('projects')}
                 className={`font-semibold transition-colors py-2 px-4 rounded ${

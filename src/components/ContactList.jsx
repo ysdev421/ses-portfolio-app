@@ -1,5 +1,9 @@
 import { useEffect, useState } from 'react';
-import { getAllContactInquiries, getContactInquiriesByUser } from '../services/contactService';
+import {
+  getAllContactInquiries,
+  getContactInquiriesByUser,
+  updateContactInquiry,
+} from '../services/contactService';
 
 const formatDateTime = (value) => {
   const date = value?.toDate?.() || (value ? new Date(value) : null);
@@ -11,6 +15,7 @@ export default function ContactList({ user, mode = 'mine' }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [savingId, setSavingId] = useState('');
 
   useEffect(() => {
     const load = async () => {
@@ -42,6 +47,21 @@ export default function ContactList({ user, mode = 'mine' }) {
     return <p className="text-slate-400">お問い合わせはまだありません。</p>;
   }
 
+  const handleAdminUpdate = async (id, patch) => {
+    try {
+      setSavingId(id);
+      setError('');
+      await updateContactInquiry(id, patch);
+      setItems((prev) =>
+        prev.map((item) => (item.id === id ? { ...item, ...patch } : item))
+      );
+    } catch (err) {
+      setError(err.message || '更新に失敗しました');
+    } finally {
+      setSavingId('');
+    }
+  };
+
   return (
     <div className="space-y-3">
       {items.map((item) => (
@@ -57,6 +77,58 @@ export default function ContactList({ user, mode = 'mine' }) {
           )}
           {item.company && <p className="text-slate-400 text-xs mt-1">会社名: {item.company}</p>}
           <p className="text-slate-200 text-sm mt-3 whitespace-pre-wrap">{item.message || '-'}</p>
+          {mode === 'all' && (
+            <div className="mt-4 space-y-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <select
+                  value={item.status || 'new'}
+                  onChange={(e) =>
+                    handleAdminUpdate(item.id, {
+                      status: e.target.value,
+                      statusUpdatedBy: user?.email || '',
+                      statusUpdatedAtClient: new Date().toISOString(),
+                    })
+                  }
+                  disabled={savingId === item.id}
+                  className="bg-slate-800 border border-slate-600 rounded px-2 py-1 text-sm text-white"
+                >
+                  <option value="new">new</option>
+                  <option value="in_progress">in_progress</option>
+                  <option value="resolved">resolved</option>
+                </select>
+                {savingId === item.id && (
+                  <span className="text-slate-400 text-xs">更新中...</span>
+                )}
+              </div>
+              <textarea
+                value={item.adminNote || ''}
+                onChange={(e) =>
+                  setItems((prev) =>
+                    prev.map((v) =>
+                      v.id === item.id ? { ...v, adminNote: e.target.value } : v
+                    )
+                  )
+                }
+                rows={2}
+                placeholder="管理メモ（対応内容など）"
+                className="w-full bg-slate-800 border border-slate-600 rounded px-2 py-1.5 text-sm text-white"
+              />
+              <button
+                type="button"
+                onClick={() =>
+                  handleAdminUpdate(item.id, {
+                    adminNote: item.adminNote || '',
+                    noteUpdatedBy: user?.email || '',
+                    noteUpdatedAtClient: new Date().toISOString(),
+                  })
+                }
+                disabled={savingId === item.id}
+                className="bg-slate-600 hover:bg-slate-500 disabled:bg-slate-700 text-white text-sm px-3 py-1 rounded"
+              >
+                メモ保存
+              </button>
+            </div>
+          )}
         </div>
       ))}
     </div>

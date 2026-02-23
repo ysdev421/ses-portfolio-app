@@ -1,4 +1,13 @@
-import { addDoc, collection, getDocs, query, serverTimestamp, where } from 'firebase/firestore';
+import {
+  addDoc,
+  collection,
+  doc,
+  getDocs,
+  query,
+  serverTimestamp,
+  updateDoc,
+  where,
+} from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 
 const CONTACT_COLLECTION = 'contact_inquiries';
@@ -48,4 +57,13 @@ export const getAllContactInquiries = async () => {
   const snapshot = await getDocs(collection(db, CONTACT_COLLECTION));
   const items = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
   return sortByCreatedAtDesc(items);
+};
+
+export const updateContactInquiry = async (inquiryId, updates) => {
+  if (!inquiryId) throw new Error('問い合わせIDが不正です');
+  const ref = doc(db, CONTACT_COLLECTION, inquiryId);
+  await updateDoc(ref, {
+    ...updates,
+    updatedAt: serverTimestamp(),
+  });
 };

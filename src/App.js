@@ -4,6 +4,7 @@ import { auth } from './firebaseConfig';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import AuthPage from './pages/AuthPage';
 import Dashboard from './pages/Dashboard';
+import CareerSheet from './pages/CareerSheet';
 import ProjectForm from './components/ProjectForm';
 import ProjectList from './components/ProjectList';
 import ProjectDetail from './components/ProjectDetail';
@@ -103,6 +104,16 @@ function App() {
               >
                 案件一覧
               </button>
+              <button
+                onClick={() => setCurrentPage('career-sheet')}
+                className={`font-semibold transition-colors py-2 px-4 rounded ${
+                  currentPage === 'career-sheet'
+                    ? 'text-amber-400 bg-slate-700'
+                    : 'text-slate-300 hover:text-white hover:bg-slate-700'
+                }`}
+              >
+                キャリアシート
+              </button>
             </nav>
           </div>
 
@@ -142,6 +153,13 @@ function App() {
             onAddProject={handleAddProject}
             onViewProject={handleViewProject}
             onRefresh={refreshKey}
+          />
+        )}
+
+        {currentPage === 'career-sheet' && (
+          <CareerSheet
+            user={user}
+            onNavigate={(page) => setCurrentPage(page)}
           />
         )}
 

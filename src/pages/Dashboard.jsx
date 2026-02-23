@@ -122,11 +122,13 @@ export default function Dashboard({ user, onNavigate }) {
     );
     const activeCount = activeProjects.length;
     const activeProjName = activeCount === 1 ? activeProjects[0].projectName : null;
+    const activePrimaryProject = activeCount > 0 ? activeProjects[0] : null;
 
     setStats({
       totalProjects: projectsData.length,
       activeCount,
       activeProjName,
+      activePrimaryProject,
       totalEntries: allEntries.length,
       skills: skillsMap,
       techExperience,
@@ -176,18 +178,27 @@ export default function Dashboard({ user, onNavigate }) {
         </div>
 
         <div className="bg-gradient-to-br from-slate-800 to-slate-700 border border-green-800 rounded-lg p-6 hover:border-green-500 transition-all">
-          <p className="text-slate-400 text-sm font-semibold">ステータス</p>
+          <p className="text-slate-400 text-sm font-semibold">参画中案件</p>
           {(stats.activeCount ?? 0) === 0 ? (
             <>
               <p className="text-2xl font-bold text-slate-400 mt-3">待機中</p>
               <p className="text-slate-500 text-xs mt-2">参画案件なし</p>
             </>
+          ) : (stats.activeCount ?? 0) === 1 ? (
+            <>
+              <p className="text-lg font-bold text-green-400 mt-3 truncate">
+                {stats.activeProjName}
+              </p>
+              <p className="text-green-600 text-xs mt-1">● 1件参画中</p>
+            </>
           ) : (
             <>
               <p className="text-lg font-bold text-green-400 mt-3 truncate">
-                {stats.activeProjName || `${stats.activeCount}件参画中`}
+                {stats.activeCount}件（並行参画）
               </p>
-              <p className="text-green-600 text-xs mt-1">● 参画中</p>
+              <p className="text-green-600 text-xs mt-1 truncate">
+                {stats.activePrimaryProject?.projectName} ほか
+              </p>
             </>
           )}
         </div>
@@ -311,6 +322,26 @@ export default function Dashboard({ user, onNavigate }) {
         )}
       </div>
 
+      {/* よく使うスキル TOP5 */}
+      <div className="bg-slate-800 border border-slate-700 rounded-lg p-6 mb-8">
+        <h3 className="text-xl font-serif font-bold text-amber-400 mb-4">よく使うスキル TOP5</h3>
+        {topSkills.length === 0 ? (
+          <p className="text-slate-400">案件にスキルを登録すると表示されます</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {topSkills.map(([skill, count], index) => (
+              <div key={skill} className="bg-slate-700 border border-slate-600 rounded px-4 py-3">
+                <p className="text-slate-300 text-sm">#{index + 1}</p>
+                <div className="flex items-center justify-between mt-1">
+                  <p className="text-white font-semibold truncate">{skill}</p>
+                  <p className="text-amber-300 text-sm">{count}件</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
       {/* アクションボタン */}
       <div className="flex flex-wrap gap-4">
         <button
@@ -324,6 +355,12 @@ export default function Dashboard({ user, onNavigate }) {
           className="bg-slate-700 hover:bg-slate-600 text-white font-bold px-6 py-2 rounded transition-colors"
         >
           案件一覧
+        </button>
+        <button
+          onClick={() => onNavigate('career-sheet')}
+          className="bg-emerald-700 hover:bg-emerald-600 text-white font-bold px-6 py-2 rounded transition-colors"
+        >
+          キャリアシート
         </button>
       </div>
     </div>

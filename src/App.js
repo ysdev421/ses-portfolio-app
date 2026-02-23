@@ -1,69 +1,92 @@
 import './App.css';
 import { useEffect, useState } from 'react';
-import { auth, db } from './firebaseConfig';
-import { onAuthStateChanged } from 'firebase/auth';
 
 function App() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Firebase認証状態の監視
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-dark-navy to-navy flex items-center justify-center">
-        <div className="text-gold text-2xl font-serif">Loading...</div>
-      </div>
-    );
-  }
+  const [currentPage, setCurrentPage] = useState('dashboard');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-dark-navy to-navy text-white">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white">
       {/* ヘッダー */}
-      <header className="bg-navy border-b border-light-navy shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-serif font-bold text-gold">SES エンジニア向けキャリア記録アプリ</h1>
-          <p className="text-light-navy mt-2">実績を可視化して、転職活動をスマートに</p>
+      <header className="bg-slate-950 border-b border-slate-700 shadow-lg sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 flex justify-between items-center">
+          <div className="flex items-center gap-6">
+            <div>
+              <h1 
+                className="text-3xl font-serif font-bold text-amber-400 cursor-pointer hover:text-amber-300 transition-colors" 
+                onClick={() => setCurrentPage('dashboard')}
+              >
+                SES キャリア記録
+              </h1>
+              <p className="text-slate-400 mt-1 text-sm">案件の実績を管理</p>
+            </div>
+            
+            {/* ナビゲーション */}
+            <nav className="hidden md:flex gap-6 ml-8">
+              <button
+                onClick={() => setCurrentPage('dashboard')}
+                className={`font-semibold transition-colors py-2 px-4 rounded ${
+                  currentPage === 'dashboard'
+                    ? 'text-amber-400 bg-slate-700'
+                    : 'text-slate-300 hover:text-white hover:bg-slate-700'
+                }`}
+              >
+                ダッシュボード
+              </button>
+              <button
+                onClick={() => setCurrentPage('projects')}
+                className={`font-semibold transition-colors py-2 px-4 rounded ${
+                  currentPage === 'projects'
+                    ? 'text-amber-400 bg-slate-700'
+                    : 'text-slate-300 hover:text-white hover:bg-slate-700'
+                }`}
+              >
+                案件一覧
+              </button>
+            </nav>
+          </div>
         </div>
       </header>
 
       {/* メインコンテンツ */}
-      <main className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
-        {user ? (
-          <div>
-            <div className="bg-light-navy rounded-lg p-6 mb-8">
-              <p className="text-gold text-lg">{user.email} でログイン中</p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* ダッシュボードカードプレースホルダー */}
-              <div className="bg-light-navy rounded-lg p-6 hover:shadow-2xl transition-shadow duration-300 border border-gold-light/20">
-                <h2 className="text-xl font-serif text-gold mb-2">ダッシュボード</h2>
-                <p className="text-light-navy">技術別の累計経験年数を表示</p>
+      <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <div className="bg-slate-800 rounded-lg p-8 border border-slate-700">
+          <h2 className="text-2xl font-serif font-bold text-amber-400 mb-4">
+            {currentPage === 'dashboard' ? 'ダッシュボード' : '案件一覧'}
+          </h2>
+          
+          <div className="text-slate-300">
+            <p className="text-lg mb-4">SESスキルポートフォリオへようこそ</p>
+            <p className="mb-6">このアプリケーションは、SES技術者のキャリア実績を管理するためのツールです。</p>
+            
+            {currentPage === 'dashboard' && (
+              <div className="space-y-4">
+                <div className="bg-slate-700 p-4 rounded border border-slate-600">
+                  <h3 className="text-amber-400 font-semibold mb-2">機能一覧</h3>
+                  <ul className="list-disc list-inside space-y-2 text-slate-300">
+                    <li>案件情報の登録と管理</li>
+                    <li>スキルと実績の記録</li>
+                    <li>プロジェクト発生工数の追跡</li>
+                    <li>キャリア情報の一元管理</li>
+                  </ul>
+                </div>
+                
+                <button
+                  onClick={() => setCurrentPage('projects')}
+                  className="mt-6 bg-amber-400 hover:bg-amber-500 text-slate-900 font-semibold py-2 px-6 rounded transition-colors"
+                >
+                  案件一覧を見る
+                </button>
               </div>
-              <div className="bg-light-navy rounded-lg p-6 hover:shadow-2xl transition-shadow duration-300 border border-gold-light/20">
-                <h2 className="text-xl font-serif text-gold mb-2">案件管理</h2>
-                <p className="text-light-navy">案件の基本情報と詳細を記録</p>
+            )}
+            
+            {currentPage === 'projects' && (
+              <div className="bg-slate-700 p-4 rounded border border-slate-600">
+                <p className="text-slate-400">案件データがまだありません。</p>
+                <p className="text-sm text-slate-500 mt-2">Firebase設定後に案件を追加できます。</p>
               </div>
-              <div className="bg-light-navy rounded-lg p-6 hover:shadow-2xl transition-shadow duration-300 border border-gold-light/20">
-                <h2 className="text-xl font-serif text-gold mb-2">日記</h2>
-                <p className="text-light-navy">スマートに仕事内容を記録</p>
-              </div>
-            </div>
+            )}
           </div>
-        ) : (
-          <div className="text-center">
-            <p className="text-2xl text-gold mb-4">ログインしてください</p>
-            <p className="text-light-navy">Firebase認証ページを準備中...</p>
-          </div>
-        )}
+        </div>
       </main>
     </div>
   );

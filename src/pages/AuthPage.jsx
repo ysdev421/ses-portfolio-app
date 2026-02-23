@@ -71,7 +71,7 @@ export default function AuthPage({ initialMode = 'login', onBack }) {
             onClick={onBack}
             className="text-slate-400 hover:text-white text-sm mb-4 transition-colors"
           >
-            ← サービス紹介へ戻る
+            ← TOPに戻る
           </button>
         )}
         <h1 className="text-3xl font-serif font-bold text-amber-400 mb-2 text-center">SES キャリア記録</h1>

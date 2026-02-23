@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { getProjects, getEntries } from '../services/firestoreService';
 
 export default function Dashboard({ user, onNavigate }) {

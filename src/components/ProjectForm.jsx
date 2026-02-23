@@ -251,20 +251,20 @@ export default function ProjectForm({ user, project, onSuccess, onCancel }) {
 
         {/* 開始日・終了日 */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
+          <div className="min-w-0">
             <label className="block text-slate-300 mb-2 font-semibold">開始日 *</label>
             <input
               type="date" name="startDate" value={formData.startDate}
               onChange={handleChange} required
-              className="w-full bg-slate-700 border border-slate-600 rounded px-4 py-2 text-white"
+              className="w-full min-w-0 bg-slate-700 border border-slate-600 rounded px-4 py-2 text-white"
             />
           </div>
-          <div>
+          <div className="min-w-0">
             <label className="block text-slate-300 mb-2 font-semibold">終了日</label>
             <input
               type="date" name="endDate" value={formData.endDate}
               onChange={handleChange}
-              className="w-full bg-slate-700 border border-slate-600 rounded px-4 py-2 text-white"
+              className="w-full min-w-0 bg-slate-700 border border-slate-600 rounded px-4 py-2 text-white"
             />
           </div>
         </div>

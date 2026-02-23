@@ -1,6 +1,11 @@
 import { useState } from 'react';
 import { auth } from '../firebaseConfig';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from 'firebase/auth';
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -20,6 +25,19 @@ export default function AuthPage() {
       } else {
         await createUserWithEmailAndPassword(auth, email, password);
       }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleAuth = async () => {
+    setError('');
+    setLoading(true);
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -68,6 +86,21 @@ export default function AuthPage() {
             {loading ? 'しばらくお待ちください...' : isLogin ? 'ログイン' : '新規登録'}
           </button>
         </form>
+
+        <div className="my-5 flex items-center gap-3">
+          <div className="h-px bg-slate-700 flex-1" />
+          <p className="text-slate-500 text-xs">または</p>
+          <div className="h-px bg-slate-700 flex-1" />
+        </div>
+
+        <button
+          type="button"
+          disabled={loading}
+          onClick={handleGoogleAuth}
+          className="w-full bg-white hover:bg-slate-100 disabled:bg-slate-300 text-slate-800 font-bold py-2 rounded transition-colors"
+        >
+          Googleでログイン
+        </button>
 
         <div className="mt-6 text-center">
           <p className="text-slate-400 text-sm">

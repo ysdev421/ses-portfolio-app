@@ -1,14 +1,16 @@
-import { useState } from 'react';
-import { createProject } from '../services/firestoreService';
+import { useState, useEffect } from 'react';
+import { createProject, updateProject } from '../services/firestoreService';
 
 const TECH_OPTIONS = [
   'React', 'Vue.js', 'Angular', 'Node.js', 'Python', 'Java', 'C#', 'PHP',
   'TypeScript', 'Docker', 'AWS', 'GCP', 'Azure', 'Figma', 'UI/UX',
 ];
 
-export default function ProjectForm({ user, onSuccess, onCancel }) {
+export default function ProjectForm({ user, project, onSuccess, onCancel }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const isEditMode = !!project;
+  
   const [formData, setFormData] = useState({
     projectName: '',
     company: '',
@@ -19,6 +21,21 @@ export default function ProjectForm({ user, onSuccess, onCancel }) {
     description: '',
     workedHours: '',
   });
+
+  useEffect(() => {
+    if (isEditMode && project) {
+      setFormData({
+        projectName: project.projectName || '',
+        company: project.company || '',
+        startDate: project.startDate || '',
+        endDate: project.endDate || '',
+        role: project.role || '',
+        skills: project.skills || [],
+        description: project.description || '',
+        workedHours: project.workedHours || '',
+      });
+    }
+  }, [project, isEditMode]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -41,17 +58,41 @@ export default function ProjectForm({ user, onSuccess, onCancel }) {
     e.preventDefault();
     setError('');
     setLoading(true);
+    console.log('DEBUG: handleSubmit started, user.uid:', user?.uid);
+    console.log('DEBUG: formData:', formData);
 
     try {
-      await createProject(user.uid, {
-        ...formData,
-        workedHours: parseInt(formData.workedHours) || 0,
-      });
-      alert('✓ 案件を作成しました！');
+      if (isEditMode) {
+        await updateProject(project.id, {
+          ...formData,
+          workedHours: parseInt(formData.workedHours) || 0,
+        });
+        alert('✓ 案件を更新しました！');
+      } else {
+        const projectId = await createProject(user.uid, {
+          ...formData,
+          workedHours: parseInt(formData.workedHours) || 0,
+        });
+        console.log('✓ 作成したプロジェクトID:', projectId);
+        alert('✓ 案件を作成しました！');
+        // フォームをクリア
+        setFormData({
+          projectName: '',
+          company: '',
+          startDate: '',
+          endDate: '',
+          role: '',
+          skills: [],
+          description: '',
+          workedHours: '',
+        });
+      }
       if (onSuccess) {
+        console.log('✓ onSuccess 呼び出し');
         onSuccess();
       }
     } catch (err) {
+      console.error('✗ フォーム送信エラー:', err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -60,7 +101,9 @@ export default function ProjectForm({ user, onSuccess, onCancel }) {
 
   return (
     <div className="bg-slate-800 border border-slate-700 rounded-lg p-6 max-w-2xl">
-      <h2 className="text-2xl font-serif font-bold text-amber-400 mb-6">新規案件を追加</h2>
+      <h2 className="text-2xl font-serif font-bold text-amber-400 mb-6">
+        {isEditMode ? '案件を編集' : '新規案件を追加'}
+      </h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* 案件名 */}
@@ -189,7 +232,7 @@ export default function ProjectForm({ user, onSuccess, onCancel }) {
             disabled={loading}
             className="flex-1 bg-amber-500 hover:bg-amber-600 disabled:bg-slate-600 text-white font-bold py-2 rounded transition-colors"
           >
-            {loading ? '作成中...' : '案件を作成'}
+            {loading ? '処理中...' : isEditMode ? '更新する' : '案件を作成'}
           </button>
           <button
             type="button"

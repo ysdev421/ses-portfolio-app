@@ -7,7 +7,6 @@ import {
   doc,
   query,
   where,
-  orderBy,
   serverTimestamp,
 } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
@@ -17,6 +16,8 @@ const PROJECTS_COLLECTION = 'projects';
 // 案件作成
 export const createProject = async (userId, projectData) => {
   try {
+    console.log('DEBUG: createProject called with userId:', userId);
+    console.log('DEBUG: projectData:', projectData);
     const docRef = await addDoc(
       collection(db, PROJECTS_COLLECTION),
       {
@@ -27,9 +28,12 @@ export const createProject = async (userId, projectData) => {
       }
     );
     console.log('✓ 案件作成成功:', docRef.id);
+    console.log('DEBUG: 作成されたドキュメント ID:', docRef.id);
     return docRef.id;
   } catch (error) {
     console.error('✗ 案件作成エラー:', error);
+    console.error('ERROR CODE:', error.code);
+    console.error('ERROR MESSAGE:', error.message);
     throw error;
   }
 };
@@ -37,20 +41,31 @@ export const createProject = async (userId, projectData) => {
 // ユーザーの案件一覧取得
 export const getProjects = async (userId) => {
   try {
+    console.log('DEBUG: getProjects called with userId:', userId);
     const q = query(
       collection(db, PROJECTS_COLLECTION),
-      where('userId', '==', userId),
-      orderBy('createdAt', 'desc')
+      where('userId', '==', userId)
     );
     const snapshot = await getDocs(q);
     const projects = snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data(),
     }));
+    
+    // JavaScriptで降順ソート
+    projects.sort((a, b) => {
+      const timeA = a.createdAt?.toMillis?.() || 0;
+      const timeB = b.createdAt?.toMillis?.() || 0;
+      return timeB - timeA;
+    });
+    
     console.log('✓ 案件取得成功:', projects.length, '件');
+    console.log('DEBUG: 取得されたプロジェクト:', projects);
     return projects;
   } catch (error) {
     console.error('✗ 案件取得エラー:', error);
+    console.error('ERROR CODE:', error.code);
+    console.error('ERROR MESSAGE:', error.message);
     throw error;
   }
 };

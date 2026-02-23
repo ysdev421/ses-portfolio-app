@@ -5,12 +5,14 @@ import { onAuthStateChanged, signOut } from 'firebase/auth';
 import AuthPage from './pages/AuthPage';
 import ProjectForm from './components/ProjectForm';
 import ProjectList from './components/ProjectList';
+import ProjectDetail from './components/ProjectDetail';
 
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState('projects');
   const [refreshKey, setRefreshKey] = useState(0);
+  const [selectedProject, setSelectedProject] = useState(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -36,6 +38,19 @@ function App() {
   const handleProjectSuccess = () => {
     setCurrentPage('projects');
     setRefreshKey(prev => prev + 1);
+  };
+
+  const handleViewProject = (project) => {
+    setSelectedProject(project);
+    setCurrentPage('project-detail');
+  };
+
+  const handleEditProject = () => {
+    setCurrentPage('edit-project');
+  };
+
+  const handleBackToDetail = () => {
+    setCurrentPage('project-detail');
   };
 
   if (loading) {
@@ -101,7 +116,7 @@ function App() {
           <ProjectList 
             user={user}
             onAddProject={handleAddProject}
-            onViewProject={(project) => console.log('View project:', project)}
+            onViewProject={handleViewProject}
             onRefresh={refreshKey}
           />
         )}
@@ -111,6 +126,23 @@ function App() {
             user={user}
             onSuccess={handleProjectSuccess}
             onCancel={() => setCurrentPage('projects')}
+          />
+        )}
+
+        {currentPage === 'project-detail' && (
+          <ProjectDetail
+            project={selectedProject}
+            onBack={() => setCurrentPage('projects')}
+            onEdit={handleEditProject}
+          />
+        )}
+
+        {currentPage === 'edit-project' && selectedProject && (
+          <ProjectForm
+            user={user}
+            project={selectedProject}
+            onSuccess={handleProjectSuccess}
+            onCancel={handleBackToDetail}
           />
         )}
       </main>

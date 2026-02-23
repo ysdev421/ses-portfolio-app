@@ -1,26 +1,29 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getProjects, deleteProject } from '../services/firestoreService';
 
 export default function ProjectList({ user, onAddProject, onViewProject, onRefresh }) {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const loadProjects = useCallback(async () => {
     if (!user) return;
-    loadProjects();
-  }, [user, onRefresh]);
-
-  const loadProjects = async () => {
     try {
+      console.log('DEBUG: loadProjects called, user.uid:', user.uid);
       setLoading(true);
       const data = await getProjects(user.uid);
+      console.log('✓ 案件リロード:', data.length, '件');
+      console.log('DEBUG: 取得したデータ:', data);
       setProjects(data);
     } catch (error) {
       console.error('✗ 案件読み込みエラー:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    loadProjects();
+  }, [loadProjects, onRefresh]);
 
   const handleDelete = async (projectId) => {
     if (window.confirm('この案件を削除しますか？')) {

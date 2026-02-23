@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { getProjects, deleteProject } from '../services/firestoreService';
 
 const isActive = (project) => {
@@ -10,6 +10,11 @@ export default function ProjectList({ user, onAddProject, onViewProject, onRefre
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState({ msg: '', type: '' });
+  const [keyword, setKeyword] = useState('');
+  const [techFilter, setTechFilter] = useState('');
+  const [phaseFilter, setPhaseFilter] = useState('');
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
 
   const showToast = (msg, type = 'success') => {
     setToast({ msg, type });
@@ -49,8 +54,61 @@ export default function ProjectList({ user, onAddProject, onViewProject, onRefre
     return <div className="text-center py-12 text-slate-400">読み込み中...</div>;
   }
 
-  const activeProjects = projects.filter(isActive);
-  const pastProjects   = projects.filter(p => !isActive(p));
+  const techOptions = useMemo(() => {
+    const set = new Set();
+    projects.forEach((p) => (p.skills || []).forEach((s) => set.add(s)));
+    return [...set].sort();
+  }, [projects]);
+
+  const phaseOptions = useMemo(() => {
+    const set = new Set();
+    projects.forEach((p) => (p.phases || []).forEach((s) => set.add(s)));
+    return [...set].sort();
+  }, [projects]);
+
+  const filteredProjects = useMemo(() => {
+    const keywordNorm = keyword.trim().toLowerCase();
+    const from = fromDate ? new Date(fromDate) : null;
+    const to = toDate ? new Date(toDate) : null;
+
+    return projects.filter((project) => {
+      if (keywordNorm) {
+        const haystack = [
+          project.projectName,
+          project.company,
+          project.role,
+          project.description,
+          ...(project.skills || []),
+          ...(project.phases || []),
+        ]
+          .filter(Boolean)
+          .join(' ')
+          .toLowerCase();
+        if (!haystack.includes(keywordNorm)) return false;
+      }
+
+      if (techFilter && !(project.skills || []).includes(techFilter)) {
+        return false;
+      }
+
+      if (phaseFilter && !(project.phases || []).includes(phaseFilter)) {
+        return false;
+      }
+
+      if (from || to) {
+        const start = project.startDate ? new Date(project.startDate) : null;
+        const end = project.endDate ? new Date(project.endDate) : new Date('2999-12-31');
+        if (!start || Number.isNaN(start.getTime())) return false;
+        if (from && end < from) return false;
+        if (to && start > to) return false;
+      }
+
+      return true;
+    });
+  }, [projects, keyword, techFilter, phaseFilter, fromDate, toDate]);
+
+  const activeProjects = filteredProjects.filter(isActive);
+  const pastProjects = filteredProjects.filter((p) => !isActive(p));
 
   const ProjectCard = ({ project, active }) => (
     <div
@@ -159,6 +217,73 @@ export default function ProjectList({ user, onAddProject, onViewProject, onRefre
         </div>
       ) : (
         <div className="space-y-8">
+          <section className="bg-slate-800 border border-slate-700 rounded-lg p-4">
+            <p className="text-slate-300 text-sm font-semibold mb-3">検索・フィルタ</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
+              <input
+                type="text"
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+                placeholder="キーワード（案件名・会社名など）"
+                className="bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white placeholder-slate-500"
+              />
+              <select
+                value={techFilter}
+                onChange={(e) => setTechFilter(e.target.value)}
+                className="bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white"
+              >
+                <option value="">技術（すべて）</option>
+                {techOptions.map((tech) => (
+                  <option key={tech} value={tech}>{tech}</option>
+                ))}
+              </select>
+              <select
+                value={phaseFilter}
+                onChange={(e) => setPhaseFilter(e.target.value)}
+                className="bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white"
+              >
+                <option value="">工程（すべて）</option>
+                {phaseOptions.map((phase) => (
+                  <option key={phase} value={phase}>{phase}</option>
+                ))}
+              </select>
+              <input
+                type="date"
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+                className="bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white"
+              />
+              <div className="flex gap-2">
+                <input
+                  type="date"
+                  value={toDate}
+                  onChange={(e) => setToDate(e.target.value)}
+                  className="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setKeyword('');
+                    setTechFilter('');
+                    setPhaseFilter('');
+                    setFromDate('');
+                    setToDate('');
+                  }}
+                  className="shrink-0 bg-slate-600 hover:bg-slate-500 text-white text-sm px-3 py-2 rounded"
+                >
+                  クリア
+                </button>
+              </div>
+            </div>
+            <p className="text-slate-400 text-xs mt-3">検索結果: {filteredProjects.length}件</p>
+          </section>
+
+          {filteredProjects.length === 0 && (
+            <section className="bg-slate-800 border border-slate-700 rounded-lg p-8 text-center">
+              <p className="text-slate-400">条件に一致する案件がありません</p>
+            </section>
+          )}
+
           {/* 現在の案件 */}
           {activeProjects.length > 0 && (
             <section>

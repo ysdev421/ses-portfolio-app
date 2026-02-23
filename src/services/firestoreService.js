@@ -8,67 +8,74 @@ import {
   query,
   where,
   orderBy,
+  serverTimestamp,
 } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 
 const PROJECTS_COLLECTION = 'projects';
-const ENTRIES_COLLECTION = 'entries';
 
-// 案件操作
-
+// 案件作成
 export const createProject = async (userId, projectData) => {
   try {
     const docRef = await addDoc(
-      collection(db, 'users', userId, PROJECTS_COLLECTION),
+      collection(db, PROJECTS_COLLECTION),
       {
+        userId,
         ...projectData,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
       }
     );
+    console.log('✓ 案件作成成功:', docRef.id);
     return docRef.id;
   } catch (error) {
-    console.error('案件作成エラー:', error);
+    console.error('✗ 案件作成エラー:', error);
     throw error;
   }
 };
 
+// ユーザーの案件一覧取得
 export const getProjects = async (userId) => {
   try {
     const q = query(
-      collection(db, 'users', userId, PROJECTS_COLLECTION),
-      orderBy('startDate', 'desc')
+      collection(db, PROJECTS_COLLECTION),
+      where('userId', '==', userId),
+      orderBy('createdAt', 'desc')
     );
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({
+    const projects = snapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data(),
     }));
+    console.log('✓ 案件取得成功:', projects.length, '件');
+    return projects;
   } catch (error) {
-    console.error('案件取得エラー:', error);
+    console.error('✗ 案件取得エラー:', error);
     throw error;
   }
 };
 
-export const updateProject = async (userId, projectId, updates) => {
+export const updateProject = async (projectId, updates) => {
   try {
-    const projectRef = doc(db, 'users', userId, PROJECTS_COLLECTION, projectId);
+    const projectRef = doc(db, PROJECTS_COLLECTION, projectId);
     await updateDoc(projectRef, {
       ...updates,
-      updatedAt: new Date(),
+      updatedAt: serverTimestamp(),
     });
+    console.log('✓ 案件更新成功:', projectId);
   } catch (error) {
-    console.error('案件更新エラー:', error);
+    console.error('✗ 案件更新エラー:', error);
     throw error;
   }
 };
 
-export const deleteProject = async (userId, projectId) => {
+export const deleteProject = async (projectId) => {
   try {
-    const projectRef = doc(db, 'users', userId, PROJECTS_COLLECTION, projectId);
+    const projectRef = doc(db, PROJECTS_COLLECTION, projectId);
     await deleteDoc(projectRef);
+    console.log('✓ 案件削除成功:', projectId);
   } catch (error) {
-    console.error('案件削除エラー:', error);
+    console.error('✗ 案件削除エラー:', error);
     throw error;
   }
 };

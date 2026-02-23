@@ -10,13 +10,14 @@ export default function ProjectForm({ user, onSuccess, onCancel }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
-    name: '',
-    client: '',
+    projectName: '',
+    company: '',
     startDate: '',
     endDate: '',
     role: '',
-    technologies: [],
+    skills: [],
     description: '',
+    workedHours: '',
   });
 
   const handleChange = (e) => {
@@ -27,12 +28,12 @@ export default function ProjectForm({ user, onSuccess, onCancel }) {
     }));
   };
 
-  const toggleTechnology = (tech) => {
+  const toggleSkill = (skill) => {
     setFormData(prev => ({
       ...prev,
-      technologies: prev.technologies.includes(tech)
-        ? prev.technologies.filter(t => t !== tech)
-        : [...prev.technologies, tech],
+      skills: prev.skills.includes(skill)
+        ? prev.skills.filter(s => s !== skill)
+        : [...prev.skills, skill],
     }));
   };
 
@@ -42,7 +43,11 @@ export default function ProjectForm({ user, onSuccess, onCancel }) {
     setLoading(true);
 
     try {
-      await createProject(user.uid, formData);
+      await createProject(user.uid, {
+        ...formData,
+        workedHours: parseInt(formData.workedHours) || 0,
+      });
+      alert('✓ 案件を作成しました！');
       if (onSuccess) {
         onSuccess();
       }
@@ -60,28 +65,28 @@ export default function ProjectForm({ user, onSuccess, onCancel }) {
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* 案件名 */}
         <div>
-          <label className="block text-slate-300 mb-2">案件名</label>
+          <label className="block text-slate-300 mb-2 font-semibold">案件名 *</label>
           <input
             type="text"
-            name="name"
-            value={formData.name}
+            name="projectName"
+            value={formData.projectName}
             onChange={handleChange}
             required
-            className="w-full bg-slate-700 border border-slate-600 rounded px-4 py-2 text-white"
+            className="w-full bg-slate-700 border border-slate-600 rounded px-4 py-2 text-white placeholder-slate-500"
             placeholder="例：ECサイト構築"
           />
         </div>
 
-        {/* クライアント企業 */}
+        {/* 会社名 */}
         <div>
-          <label className="block text-slate-300 mb-2">クライアント企業</label>
+          <label className="block text-slate-300 mb-2 font-semibold">会社名 *</label>
           <input
             type="text"
-            name="client"
-            value={formData.client}
+            name="company"
+            value={formData.company}
             onChange={handleChange}
             required
-            className="w-full bg-slate-700 border border-slate-600 rounded px-4 py-2 text-white"
+            className="w-full bg-slate-700 border border-slate-600 rounded px-4 py-2 text-white placeholder-slate-500"
             placeholder="例：株式会社ABC"
           />
         </div>
@@ -89,7 +94,7 @@ export default function ProjectForm({ user, onSuccess, onCancel }) {
         {/* 開始日・終了日 */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-slate-300 mb-2">開始日</label>
+            <label className="block text-slate-300 mb-2 font-semibold">開始日 *</label>
             <input
               type="date"
               name="startDate"
@@ -100,7 +105,7 @@ export default function ProjectForm({ user, onSuccess, onCancel }) {
             />
           </div>
           <div>
-            <label className="block text-slate-300 mb-2">終了日（未完了の場合は空白）</label>
+            <label className="block text-slate-300 mb-2 font-semibold">終了日</label>
             <input
               type="date"
               name="endDate"
@@ -111,60 +116,73 @@ export default function ProjectForm({ user, onSuccess, onCancel }) {
           </div>
         </div>
 
-        {/* 役職・役割 */}
+        {/* 役職 */}
         <div>
-          <label className="block text-slate-300 mb-2">役職・役割</label>
+          <label className="block text-slate-300 mb-2 font-semibold">役職・役割</label>
           <input
             type="text"
             name="role"
             value={formData.role}
             onChange={handleChange}
-            className="w-full bg-slate-700 border border-slate-600 rounded px-4 py-2 text-white"
+            className="w-full bg-slate-700 border border-slate-600 rounded px-4 py-2 text-white placeholder-slate-500"
             placeholder="例：フロントエンドエンジニア"
           />
         </div>
 
-        {/* 使用技術 */}
+        {/* 実績時間 */}
         <div>
-          <label className="block text-slate-300 mb-3">使用技術</label>
+          <label className="block text-slate-300 mb-2 font-semibold">実績時間（時間）</label>
+          <input
+            type="number"
+            name="workedHours"
+            value={formData.workedHours}
+            onChange={handleChange}
+            className="w-full bg-slate-700 border border-slate-600 rounded px-4 py-2 text-white placeholder-slate-500"
+            placeholder="例：480"
+          />
+        </div>
+
+        {/* 使用スキル */}
+        <div>
+          <label className="block text-slate-300 mb-3 font-semibold">使用スキル</label>
           <div className="flex flex-wrap gap-2">
-            {TECH_OPTIONS.map(tech => (
+            {TECH_OPTIONS.map(skill => (
               <button
-                key={tech}
+                key={skill}
                 type="button"
-                onClick={() => toggleTechnology(tech)}
-                className={`px-3 py-1 rounded text-sm transition-colors ${
-                  formData.technologies.includes(tech)
+                onClick={() => toggleSkill(skill)}
+                className={`px-3 py-1 rounded text-sm font-semibold transition-colors ${
+                  formData.skills.includes(skill)
                     ? 'bg-amber-500 text-white'
                     : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
                 }`}
               >
-                {tech}
+                {skill}
               </button>
             ))}
           </div>
         </div>
 
-        {/* 案件説明 */}
+        {/* 説明 */}
         <div>
-          <label className="block text-slate-300 mb-2">案件説明</label>
+          <label className="block text-slate-300 mb-2 font-semibold">説明</label>
           <textarea
             name="description"
             value={formData.description}
             onChange={handleChange}
-            className="w-full bg-slate-700 border border-slate-600 rounded px-4 py-2 text-white"
+            className="w-full bg-slate-700 border border-slate-600 rounded px-4 py-2 text-white placeholder-slate-500"
             rows="4"
             placeholder="案件の詳細や特記事項を入力してください"
           />
         </div>
 
         {error && (
-          <div className="bg-red-900 border border-red-500 text-red-100 px-4 py-2 rounded">
-            {error}
+          <div className="bg-red-900/50 border border-red-500 text-red-200 px-4 py-3 rounded">
+            ✗ {error}
           </div>
         )}
 
-        {/* 送信ボタン */}
+        {/* ボタン */}
         <div className="flex gap-3 pt-4">
           <button
             type="submit"

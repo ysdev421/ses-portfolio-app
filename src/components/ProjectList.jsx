@@ -1,26 +1,38 @@
 import { useState, useEffect } from 'react';
-import { getProjects } from '../services/firestoreService';
+import { getProjects, deleteProject } from '../services/firestoreService';
 
-export default function ProjectList({ user, onAddProject, onViewProject }) {
+export default function ProjectList({ user, onAddProject, onViewProject, onRefresh }) {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!user) return;
-
-    const loadProjects = async () => {
-      try {
-        const data = await getProjects(user.uid);
-        setProjects(data);
-      } catch (error) {
-        console.error('案件読み込みエラー:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     loadProjects();
-  }, [user]);
+  }, [user, onRefresh]);
+
+  const loadProjects = async () => {
+    try {
+      setLoading(true);
+      const data = await getProjects(user.uid);
+      setProjects(data);
+    } catch (error) {
+      console.error('✗ 案件読み込みエラー:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (projectId) => {
+    if (window.confirm('この案件を削除しますか？')) {
+      try {
+        await deleteProject(projectId);
+        alert('✓ 案件を削除しました');
+        loadProjects();
+      } catch (error) {
+        alert('✗ 削除に失敗しました:' + error.message);
+      }
+    }
+  };
 
   if (loading) {
     return <div className="text-center py-12 text-slate-400">読み込み中...</div>;
@@ -51,45 +63,34 @@ export default function ProjectList({ user, onAddProject, onViewProject }) {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {projects.map(project => (
-            <div
-              key={project.id}
-              className="bg-slate-800 border border-slate-700 rounded-lg p-6 hover:border-amber-500 transition-colors cursor-pointer"
-              onClick={() => onViewProject(project)}
-            >
-              <h3 className="font-bold text-white text-lg mb-2">{project.name}</h3>
-              <p className="text-slate-400 text-sm mb-3">クライアント: {project.client}</p>
+            <div key={project.id} className="bg-slate-800 border border-slate-700 rounded-lg p-4 hover:border-amber-500 transition-all">
+              <h3 className="text-lg font-semibold text-amber-400 mb-2">{project.projectName}</h3>
+              <p className="text-slate-400 text-sm mb-1">会社: {project.company}</p>
+              <p className="text-slate-400 text-sm mb-1">役職: {project.role || '未記入'}</p>
+              <p className="text-slate-400 text-sm mb-1">実績時間: {project.workedHours || 0}時間</p>
               
-              {project.startDate && (
-                <p className="text-slate-400 text-sm mb-3">
-                  期間: {new Date(project.startDate).toLocaleDateString('ja-JP')}
-                  {project.endDate && ` ~ ${new Date(project.endDate).toLocaleDateString('ja-JP')}`}
-                </p>
-              )}
-
-              {project.role && (
-                <p className="text-slate-400 text-sm mb-3">役职: {project.role}</p>
-              )}
-
-              {project.technologies && project.technologies.length > 0 && (
-                <div className="mb-3">
-                  <p className="text-slate-400 text-sm mb-2">使用技術:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {project.technologies.map(tech => (
-                      <span key={tech} className="bg-amber-900 text-amber-100 px-2 py-1 rounded text-xs">
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
+              {project.skills && project.skills.length > 0 && (
+                <div className="flex flex-wrap gap-1 mt-3 mb-3">
+                  {project.skills.map(skill => (
+                    <span key={skill} className="text-xs bg-amber-500/20 text-amber-300 px-2 py-1 rounded">
+                      {skill}
+                    </span>
+                  ))}
                 </div>
               )}
-
-              {project.description && (
-                <p className="text-slate-300 text-sm line-clamp-2">{project.description}</p>
-              )}
-
-              <div className="mt-4">
-                <button className="w-full bg-amber-500 hover:bg-amber-600 text-white py-2 rounded transition-colors">
-                  詳細を表示
+              
+              <div className="flex gap-2 mt-4">
+                <button
+                  onClick={() => onViewProject(project)}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-3 py-1 rounded transition-colors"
+                >
+                  詳細
+                </button>
+                <button
+                  onClick={() => handleDelete(project.id)}
+                  className="flex-1 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold px-3 py-1 rounded transition-colors"
+                >
+                  削除
                 </button>
               </div>
             </div>

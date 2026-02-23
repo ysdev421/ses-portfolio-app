@@ -15,8 +15,8 @@ module.exports = {
         'gold-light': '#fbbf24',
       },
       fontFamily: {
-        serif: ['Georgia', 'Garamond', 'serif'],
-        sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        serif: ['"Zen Kaku Gothic New"', '"Noto Sans JP"', 'sans-serif'],
+        sans: ['Inter', '"Noto Sans JP"', 'sans-serif'],
       },
       animation: {
         'smooth-fade': 'fadeIn 0.3s ease-in-out',

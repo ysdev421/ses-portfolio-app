@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { getProjects, getEntries } from '../services/firestoreService';
 
 export default function Dashboard({ user, onNavigate }) {
   const [projects, setProjects] = useState([]);
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
+  const isMounted = useRef(true);
+  const [error, setError] = useState(null);
   const [stats, setStats] = useState({
     totalProjects: 0,
     totalWorkedHours: 0,
@@ -14,8 +16,10 @@ export default function Dashboard({ user, onNavigate }) {
   });
 
   useEffect(() => {
+    isMounted.current = true;
     if (!user) return;
     loadData();
+    return () => { isMounted.current = false; };
   }, [user]);
 
   const loadData = async () => {

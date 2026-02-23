@@ -10,6 +10,7 @@ export default function Dashboard({ user, onNavigate }) {
     totalWorkedHours: 0,
     totalEntries: 0,
     skills: {},
+    phaseExperience: {},
     recentEntries: [],
   });
 
@@ -62,6 +63,7 @@ export default function Dashboard({ user, onNavigate }) {
     // 案件からスキルを集計
     const skillsMap = {};
     const techExperience = {};
+    const phaseExperience = {};
 
     projectsData.forEach(project => {
       // スキルをカウント
@@ -83,6 +85,11 @@ export default function Dashboard({ user, onNavigate }) {
         if (project.skills && Array.isArray(project.skills)) {
           project.skills.forEach(skill => {
             techExperience[skill] = (techExperience[skill] || 0) + months;
+          });
+        }
+        if (project.phases && Array.isArray(project.phases)) {
+          project.phases.forEach(phase => {
+            phaseExperience[phase] = (phaseExperience[phase] || 0) + months;
           });
         }
       }
@@ -112,6 +119,7 @@ export default function Dashboard({ user, onNavigate }) {
       totalEntries: allEntries.length,
       skills: skillsMap,
       techExperience,
+      phaseExperience,
       recentEntries,
       recentProjects,
     });
@@ -131,6 +139,9 @@ export default function Dashboard({ user, onNavigate }) {
     .slice(0, 5);
 
   const topTechExp = Object.entries(stats.techExperience || {})
+    .sort((a, b) => b[1] - a[1]);
+
+  const topPhaseExp = Object.entries(stats.phaseExperience || {})
     .sort((a, b) => b[1] - a[1]);
 
   return (
@@ -280,6 +291,26 @@ export default function Dashboard({ user, onNavigate }) {
                 </div>
               );
             })}
+          </div>
+        )}
+      </div>
+
+      {/* 工程別累計経験年数 */}
+      <div className="bg-slate-800 border border-slate-700 rounded-lg p-6 mb-8">
+        <h3 className="text-xl font-serif font-bold text-amber-400 mb-4">工程別 累計経験年数</h3>
+        {topPhaseExp.length === 0 ? (
+          <p className="text-slate-400">案件の担当フェーズを登録すると経験年数が表示されます</p>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            {topPhaseExp.map(([phase, months]) => (
+              <div
+                key={phase}
+                className="bg-slate-700 border border-slate-600 rounded-lg p-3 hover:border-amber-500 transition-all"
+              >
+                <p className="text-slate-300 text-sm font-semibold truncate">{phase}</p>
+                <p className="text-amber-400 text-xl font-bold mt-1">{formatDuration(months)}</p>
+              </div>
+            ))}
           </div>
         )}
       </div>

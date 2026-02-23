@@ -143,14 +143,8 @@ export default function ProjectList({ user, onAddProject, onViewProject, onRefre
         </div>
       )}
 
-      <div className="flex justify-between items-center mb-6">
+      <div className="mb-6">
         <h2 className="text-2xl font-serif font-bold text-amber-400">案件一覧</h2>
-        <button
-          onClick={onAddProject}
-          className="bg-amber-500 hover:bg-amber-600 text-white font-bold px-6 py-2 rounded transition-colors"
-        >
-          + 新規案件
-        </button>
       </div>
 
       {projects.length === 0 ? (

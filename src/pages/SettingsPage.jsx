@@ -33,6 +33,13 @@ export default function SettingsPage({ user, tab = 'account', onTabChange }) {
 
   const isAdmin = profile?.role === 'admin';
 
+  useEffect(() => {
+    if (!isAdmin) return;
+    if (tab === 'contact' || tab === 'history') {
+      onTabChange('inbox');
+    }
+  }, [isAdmin, onTabChange, tab]);
+
   return (
     <div className="space-y-6">
       <div>
@@ -51,26 +58,30 @@ export default function SettingsPage({ user, tab = 'account', onTabChange }) {
         >
           アカウント情報
         </button>
-        <button
-          onClick={() => onTabChange('contact')}
-          className={`px-4 py-2 rounded font-semibold transition-colors ${
-            tab === 'contact'
-              ? 'bg-amber-500 text-white'
-              : 'bg-slate-700 hover:bg-slate-600 text-slate-200'
-          }`}
-        >
-          お問い合わせ
-        </button>
-        <button
-          onClick={() => onTabChange('history')}
-          className={`px-4 py-2 rounded font-semibold transition-colors ${
-            tab === 'history'
-              ? 'bg-amber-500 text-white'
-              : 'bg-slate-700 hover:bg-slate-600 text-slate-200'
-          }`}
-        >
-          送信履歴
-        </button>
+        {!isAdmin && (
+          <button
+            onClick={() => onTabChange('contact')}
+            className={`px-4 py-2 rounded font-semibold transition-colors ${
+              tab === 'contact'
+                ? 'bg-amber-500 text-white'
+                : 'bg-slate-700 hover:bg-slate-600 text-slate-200'
+            }`}
+          >
+            お問い合わせ
+          </button>
+        )}
+        {!isAdmin && (
+          <button
+            onClick={() => onTabChange('history')}
+            className={`px-4 py-2 rounded font-semibold transition-colors ${
+              tab === 'history'
+                ? 'bg-amber-500 text-white'
+                : 'bg-slate-700 hover:bg-slate-600 text-slate-200'
+            }`}
+          >
+            送信履歴
+          </button>
+        )}
         {isAdmin && (
           <button
             onClick={() => onTabChange('inbox')}
@@ -123,8 +134,8 @@ export default function SettingsPage({ user, tab = 'account', onTabChange }) {
         </div>
       )}
 
-      {tab === 'contact' && <ContactSection user={user} />}
-      {tab === 'history' && (
+      {!isAdmin && tab === 'contact' && <ContactSection user={user} />}
+      {!isAdmin && tab === 'history' && (
         <div className="bg-slate-800 border border-slate-700 rounded-lg p-6">
           <h3 className="text-xl font-serif font-bold text-amber-400 mb-4">送信したお問い合わせ</h3>
           <ContactList user={user} mode="mine" />

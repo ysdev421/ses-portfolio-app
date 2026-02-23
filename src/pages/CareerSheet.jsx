@@ -3,10 +3,14 @@ import { getProjects } from '../services/firestoreService';
 
 const formatDate = (value) => {
   if (!value) return '';
-  if (typeof value === 'string') return value;
+  if (typeof value === 'string') {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return value;
+    return date.toLocaleDateString('ja-JP');
+  }
   const date = value?.toDate?.() || new Date(value);
   if (Number.isNaN(date.getTime())) return '';
-  return date.toISOString().slice(0, 10);
+  return date.toLocaleDateString('ja-JP');
 };
 
 const csvEscape = (value) => {

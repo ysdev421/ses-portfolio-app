@@ -1,6 +1,35 @@
 import { useState, useEffect } from 'react';
 import { createEntry, updateEntry } from '../services/firestoreService';
 
+const toYmd = (date) => {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+};
+
+const normalizeDateString = (value) => {
+  if (!value) return '';
+  const normalized = value.trim().replace(/\./g, '/').replace(/-/g, '/');
+  const m = normalized.match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})$/);
+  if (!m) return '';
+
+  const y = Number(m[1]);
+  const mo = Number(m[2]);
+  const d = Number(m[3]);
+  const dt = new Date(y, mo - 1, d);
+  if (
+    Number.isNaN(dt.getTime()) ||
+    dt.getFullYear() !== y ||
+    dt.getMonth() !== mo - 1 ||
+    dt.getDate() !== d
+  ) {
+    return '';
+  }
+
+  return `${String(y).padStart(4, '0')}-${String(mo).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+};
+
 export default function EntryForm({ userId, projectId, entry, onSuccess, onCancel }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -15,38 +44,35 @@ export default function EntryForm({ userId, projectId, entry, onSuccess, onCance
 
   useEffect(() => {
     if (isEditMode && entry) {
-      // 日付をフォーマット（YYYY-MM-DD）
       let dateStr = '';
       if (entry.date) {
-        const date = typeof entry.date === 'string' 
-          ? new Date(entry.date) 
-          : entry.date.toDate?.() || new Date(entry.date);
-        dateStr = date.toISOString().split('T')[0];
+        const date =
+          typeof entry.date === 'string'
+            ? new Date(entry.date)
+            : entry.date.toDate?.() || new Date(entry.date);
+        if (!Number.isNaN(date.getTime())) {
+          dateStr = toYmd(date);
+        }
       }
-      
+
       setFormData({
         date: dateStr,
         title: entry.title || '',
         content: entry.content || '',
         workedHours: entry.workedHours || '',
       });
-    } else {
-      // 新規作成時は今日の日付を自動設定
-      const today = new Date();
-      const dateStr = today.toISOString().split('T')[0];
-      setFormData(prev => ({
-        ...prev,
-        date: dateStr,
-      }));
+      return;
     }
+
+    setFormData((prev) => ({
+      ...prev,
+      date: toYmd(new Date()),
+    }));
   }, [entry, isEditMode]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -54,43 +80,39 @@ export default function EntryForm({ userId, projectId, entry, onSuccess, onCance
     setError('');
     setLoading(true);
 
-    if (!formData.date || !formData.title) {
-      setError('日付とタイトルは必須です');
+    const normalizedDate = normalizeDateString(formData.date);
+    if (!normalizedDate || !formData.title.trim()) {
+      setError('日付は YYYY/MM/DD 形式、タイトルは必須です');
       setLoading(false);
       return;
     }
 
     try {
+      const payload = {
+        date: new Date(normalizedDate),
+        title: formData.title,
+        content: formData.content,
+        workedHours: parseInt(formData.workedHours, 10) || 0,
+      };
+
       if (isEditMode) {
-        await updateEntry(entry.id, {
-          date: new Date(formData.date),
-          title: formData.title,
-          content: formData.content,
-          workedHours: parseInt(formData.workedHours) || 0,
-        });
-        alert('✓ 日記を更新しました！');
+        await updateEntry(entry.id, payload);
+        alert('日記を更新しました');
       } else {
-        await createEntry(userId, projectId, {
-          date: new Date(formData.date),
-          title: formData.title,
-          content: formData.content,
-          workedHours: parseInt(formData.workedHours) || 0,
-        });
-        alert('✓ 日記を作成しました！');
-        // フォームをリセット
-        const today = new Date();
-        const dateStr = today.toISOString().split('T')[0];
+        await createEntry(userId, projectId, payload);
+        alert('日記を作成しました');
         setFormData({
-          date: dateStr,
+          date: toYmd(new Date()),
           title: '',
           content: '',
           workedHours: '',
         });
       }
+
       if (onSuccess) onSuccess();
     } catch (err) {
-      console.error('✗ フォーム送信エラー:', err);
-      setError(err.message);
+      console.error('日記保存エラー:', err);
+      setError(err.message || '保存に失敗しました');
     } finally {
       setLoading(false);
     }
@@ -105,20 +127,21 @@ export default function EntryForm({ userId, projectId, entry, onSuccess, onCance
       {error && <p className="text-red-400 mb-4">{error}</p>}
 
       <div className="space-y-4">
-        {/* 日付 */}
         <div className="min-w-0">
           <label className="block text-sm font-semibold text-slate-300 mb-1">日付 *</label>
           <input
-            type="date"
+            type="text"
             name="date"
-            value={formData.date}
+            value={formData.date.replace(/-/g, '/')}
             onChange={handleChange}
+            inputMode="numeric"
+            pattern="\\d{4}/\\d{1,2}/\\d{1,2}"
+            placeholder="YYYY/MM/DD"
             className="w-full min-w-0 px-4 py-2 bg-slate-600 border border-slate-500 rounded text-white placeholder-slate-400"
             required
           />
         </div>
 
-        {/* タイトル */}
         <div>
           <label className="block text-sm font-semibold text-slate-300 mb-1">タイトル *</label>
           <input
@@ -132,12 +155,11 @@ export default function EntryForm({ userId, projectId, entry, onSuccess, onCance
           />
         </div>
 
-        {/* 内容 */}
         <div>
           <label className="block text-sm font-semibold text-slate-300 mb-1">内容</label>
           <textarea
             name="content"
-            placeholder="この日の作業内容を記入してください"
+            placeholder="この日の作業内容を記録してください"
             value={formData.content}
             onChange={handleChange}
             rows="4"
@@ -145,7 +167,6 @@ export default function EntryForm({ userId, projectId, entry, onSuccess, onCance
           />
         </div>
 
-        {/* 作業時間 */}
         <div>
           <label className="block text-sm font-semibold text-slate-300 mb-1">作業時間（時間）</label>
           <input
@@ -161,7 +182,6 @@ export default function EntryForm({ userId, projectId, entry, onSuccess, onCance
         </div>
       </div>
 
-      {/* ボタン */}
       <div className="flex gap-2 mt-6">
         <button
           type="submit"

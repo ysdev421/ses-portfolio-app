@@ -47,7 +47,7 @@ export default function AuthPage({ initialMode = 'login', onBack }) {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
     } catch (err) {
-      if (err?.code === 'auth/popup-blocked' || err?.code === 'auth/cancelled-popup-request') {
+      if (err?.code === 'auth/popup-blocked') {
         try {
           const provider = new GoogleAuthProvider();
           await signInWithRedirect(auth, provider);
@@ -55,6 +55,8 @@ export default function AuthPage({ initialMode = 'login', onBack }) {
         } catch (redirectErr) {
           setError(redirectErr.message);
         }
+      } else if (err?.code === 'auth/popup-closed-by-user') {
+        setError('Googleログインがキャンセルされました。');
       } else {
         setError(err.message);
       }

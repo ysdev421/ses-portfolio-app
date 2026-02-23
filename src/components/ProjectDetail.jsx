@@ -1,4 +1,44 @@
-export default function ProjectDetail({ project, onBack, onEdit }) {
+import { useState, useEffect } from 'react';
+import { getEntries, deleteEntry } from '../services/firestoreService';
+import EntryForm from './EntryForm';
+
+export default function ProjectDetail({ user, project, onBack, onEdit }) {
+  const [entries, setEntries] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showEntryForm, setShowEntryForm] = useState(false);
+  const [editingEntry, setEditingEntry] = useState(null);
+
+  useEffect(() => {
+    if (project?.id) {
+      loadEntries();
+    }
+  }, [project?.id]);
+
+  const loadEntries = async () => {
+    if (!project?.id) return;
+    try {
+      setLoading(true);
+      const data = await getEntries(project.id);
+      setEntries(data);
+    } catch (error) {
+      console.error('✗ 日記読み込みエラー:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteEntry = async (entryId) => {
+    if (window.confirm('この日記を削除しますか？')) {
+      try {
+        await deleteEntry(entryId);
+        alert('✓ 日記を削除しました');
+        loadEntries();
+      } catch (error) {
+        alert('✗ 削除に失敗しました:' + error.message);
+      }
+    }
+  };
+
   if (!project) {
     return (
       <div className="text-center py-12">
@@ -91,6 +131,88 @@ export default function ProjectDetail({ project, onBack, onEdit }) {
             <p className="text-slate-300 whitespace-pre-wrap leading-relaxed">
               {project.description}
             </p>
+          </div>
+        )}
+      </div>
+
+      {/* 日記セクション */}
+      <div className="bg-slate-800 border border-slate-700 rounded-lg p-8">
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="text-2xl font-serif font-bold text-amber-400">日記 ({entries.length}件)</h3>
+          <button
+            onClick={() => {
+              setEditingEntry(null);
+              setShowEntryForm(!showEntryForm);
+            }}
+            className="bg-amber-500 hover:bg-amber-600 text-white font-bold px-4 py-2 rounded transition-colors"
+          >
+            + 日記を追加
+          </button>
+        </div>
+
+        {/* 日記作成フォーム */}
+        {showEntryForm && (
+          <EntryForm
+            userId={user.uid}
+            projectId={project.id}
+            entry={editingEntry}
+            onSuccess={() => {
+              setShowEntryForm(false);
+              setEditingEntry(null);
+              loadEntries();
+            }}
+            onCancel={() => {
+              setShowEntryForm(false);
+              setEditingEntry(null);
+            }}
+          />
+        )}
+
+        {/* 日記一覧 */}
+        {entries.length === 0 ? (
+          <p className="text-slate-400 text-center py-8">日記がまだありません</p>
+        ) : (
+          <div className="space-y-4">
+            {entries.map(entry => {
+              const entryDate = entry.date?.toDate?.() || new Date(entry.date);
+              const dateStr = entryDate.toLocaleDateString('ja-JP');
+              return (
+                <div key={entry.id} className="border-l-4 border-amber-500 bg-slate-700 rounded px-4 py-4">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <p className="text-slate-400 text-sm">{dateStr}</p>
+                      <h4 className="text-white font-bold text-lg">{entry.title}</h4>
+                      {entry.workedHours > 0 && (
+                        <p className="text-amber-300 text-sm">作業時間: {entry.workedHours}時間</p>
+                      )}
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => {
+                          setEditingEntry(entry);
+                          setShowEntryForm(true);
+                        }}
+                        className="text-blue-400 hover:text-blue-300 text-sm"
+                      >
+                        編集
+                      </button>
+                      <button
+                        onClick={() => handleDeleteEntry(entry.id)}
+                        className="text-red-400 hover:text-red-300 text-sm"
+                      >
+                        削除
+                      </button>
+                    </div>
+                  </div>
+
+                  {entry.content && (
+                    <p className="text-slate-300 text-sm whitespace-pre-wrap line-clamp-3">
+                      {entry.content}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

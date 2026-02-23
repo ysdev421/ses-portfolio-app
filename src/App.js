@@ -131,6 +131,7 @@ function App() {
 
         {currentPage === 'project-detail' && (
           <ProjectDetail
+            user={user}
             project={selectedProject}
             onBack={() => setCurrentPage('projects')}
             onEdit={handleEditProject}

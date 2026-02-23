@@ -94,3 +94,77 @@ export const deleteProject = async (projectId) => {
     throw error;
   }
 };
+
+// 日記操作
+const ENTRIES_COLLECTION = 'entries';
+
+export const createEntry = async (userId, projectId, entryData) => {
+  try {
+    console.log('DEBUG: createEntry called with projectId:', projectId);
+    const docRef = await addDoc(collection(db, ENTRIES_COLLECTION), {
+      userId,
+      projectId,
+      ...entryData,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+    console.log('✓ 日記作成成功:', docRef.id);
+    return docRef.id;
+  } catch (error) {
+    console.error('✗ 日記作成エラー:', error);
+    throw error;
+  }
+};
+
+export const getEntries = async (projectId) => {
+  try {
+    console.log('DEBUG: getEntries called with projectId:', projectId);
+    const q = query(
+      collection(db, ENTRIES_COLLECTION),
+      where('projectId', '==', projectId)
+    );
+    const snapshot = await getDocs(q);
+    const entries = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    
+    // JavaScriptで降順ソート
+    entries.sort((a, b) => {
+      const timeA = a.createdAt?.toMillis?.() || 0;
+      const timeB = b.createdAt?.toMillis?.() || 0;
+      return timeB - timeA;
+    });
+    
+    console.log('✓ 日記取得成功:', entries.length, '件');
+    return entries;
+  } catch (error) {
+    console.error('✗ 日記取得エラー:', error);
+    throw error;
+  }
+};
+
+export const updateEntry = async (entryId, updates) => {
+  try {
+    const entryRef = doc(db, ENTRIES_COLLECTION, entryId);
+    await updateDoc(entryRef, {
+      ...updates,
+      updatedAt: serverTimestamp(),
+    });
+    console.log('✓ 日記更新成功:', entryId);
+  } catch (error) {
+    console.error('✗ 日記更新エラー:', error);
+    throw error;
+  }
+};
+
+export const deleteEntry = async (entryId) => {
+  try {
+    const entryRef = doc(db, ENTRIES_COLLECTION, entryId);
+    await deleteDoc(entryRef);
+    console.log('✓ 日記削除成功:', entryId);
+  } catch (error) {
+    console.error('✗ 日記削除エラー:', error);
+    throw error;
+  }
+};

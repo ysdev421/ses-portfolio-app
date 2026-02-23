@@ -1,39 +1,45 @@
 import { useState, useEffect } from 'react';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
-import { db } from '../firebaseConfig';
-import { createEntry } from '../services/firestoreService';
+import { createEntry, updateEntry } from '../services/firestoreService';
 
-const TAG_OPTIONS = [
-  // 開発スキル系
-  '新規開発',
-  '機能開発',
-  'バグ修正',
-  'リファクタリング',
-  '設計・アーキテクチャ',
-  // ビジネススキル系
-  '顧客折衝',
-  '要件定義',
-  'PM/マネジメント',
-  'プレゼン・資料作成',
-  // 技術深掘り系
-  'インフラ・環境構築',
-  'パフォーマンス最適化',
-  'セキュリティ対応',
-  // 学習・貢献系
-  'レビュー・指導',
-  '学習・技術検証',
-  'トラブルシューティング',
-];
-
-export default function EntryForm({ user, projectId, projectName, onSuccess, onCancel }) {
+export default function EntryForm({ userId, projectId, entry, onSuccess, onCancel }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const isEditMode = !!entry;
+
   const [formData, setFormData] = useState({
-    date: new Date().toISOString().split('T')[0],
+    date: '',
     title: '',
-    tags: [],
     content: '',
+    workedHours: '',
   });
+
+  useEffect(() => {
+    if (isEditMode && entry) {
+      // 日付をフォーマット（YYYY-MM-DD）
+      let dateStr = '';
+      if (entry.date) {
+        const date = typeof entry.date === 'string' 
+          ? new Date(entry.date) 
+          : entry.date.toDate?.() || new Date(entry.date);
+        dateStr = date.toISOString().split('T')[0];
+      }
+      
+      setFormData({
+        date: dateStr,
+        title: entry.title || '',
+        content: entry.content || '',
+        workedHours: entry.workedHours || '',
+      });
+    } else {
+      // 新規作成時は今日の日付を自動設定
+      const today = new Date();
+      const dateStr = today.toISOString().split('T')[0];
+      setFormData(prev => ({
+        ...prev,
+        date: dateStr,
+      }));
+    }
+  }, [entry, isEditMode]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -43,26 +49,47 @@ export default function EntryForm({ user, projectId, projectName, onSuccess, onC
     }));
   };
 
-  const toggleTag = (tag) => {
-    setFormData(prev => ({
-      ...prev,
-      tags: prev.tags.includes(tag)
-        ? prev.tags.filter(t => t !== tag)
-        : [...prev.tags, tag],
-    }));
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
+    if (!formData.date || !formData.title) {
+      setError('日付とタイトルは必須です');
+      setLoading(false);
+      return;
+    }
+
     try {
-      await createEntry(user.uid, projectId, formData);
-      if (onSuccess) {
-        onSuccess();
+      if (isEditMode) {
+        await updateEntry(entry.id, {
+          date: new Date(formData.date),
+          title: formData.title,
+          content: formData.content,
+          workedHours: parseInt(formData.workedHours) || 0,
+        });
+        alert('✓ 日記を更新しました！');
+      } else {
+        await createEntry(userId, projectId, {
+          date: new Date(formData.date),
+          title: formData.title,
+          content: formData.content,
+          workedHours: parseInt(formData.workedHours) || 0,
+        });
+        alert('✓ 日記を作成しました！');
+        // フォームをリセット
+        const today = new Date();
+        const dateStr = today.toISOString().split('T')[0];
+        setFormData({
+          date: dateStr,
+          title: '',
+          content: '',
+          workedHours: '',
+        });
       }
+      if (onSuccess) onSuccess();
     } catch (err) {
+      console.error('✗ フォーム送信エラー:', err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -70,96 +97,87 @@ export default function EntryForm({ user, projectId, projectName, onSuccess, onC
   };
 
   return (
-    <div className="bg-slate-800 border border-slate-700 rounded-lg p-6 max-w-2xl">
-      <h2 className="text-2xl font-serif font-bold text-amber-400 mb-2">日記を追加</h2>
-      <p className="text-slate-400 mb-6">案件: {projectName}</p>
+    <form onSubmit={handleSubmit} className="bg-slate-700 border border-slate-600 rounded-lg p-4 mb-6">
+      <h3 className="text-xl font-semibold text-amber-400 mb-4">
+        {isEditMode ? '日記を編集' : '新しい日記を追加'}
+      </h3>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      {error && <p className="text-red-400 mb-4">{error}</p>}
+
+      <div className="space-y-4">
         {/* 日付 */}
         <div>
-          <label className="block text-slate-300 mb-2">日付</label>
+          <label className="block text-sm font-semibold text-slate-300 mb-1">日付 *</label>
           <input
             type="date"
             name="date"
             value={formData.date}
             onChange={handleChange}
+            className="w-full px-4 py-2 bg-slate-600 border border-slate-500 rounded text-white placeholder-slate-400"
             required
-            className="w-full bg-slate-700 border border-slate-600 rounded px-4 py-2 text-white"
           />
         </div>
 
         {/* タイトル */}
         <div>
-          <label className="block text-slate-300 mb-2">タイトル（何をしたか）</label>
+          <label className="block text-sm font-semibold text-slate-300 mb-1">タイトル *</label>
           <input
             type="text"
             name="title"
+            placeholder="例: API 実装、バグ修正"
             value={formData.title}
             onChange={handleChange}
+            className="w-full px-4 py-2 bg-slate-600 border border-slate-500 rounded text-white placeholder-slate-400"
             required
-            className="w-full bg-slate-700 border border-slate-600 rounded px-4 py-2 text-white"
-            placeholder="例：ログイン画面のバグを修正した"
           />
         </div>
 
-        {/* タグ選択 */}
+        {/* 内容 */}
         <div>
-          <label className="block text-slate-300 mb-3">タグを選択（複数選択可）</label>
-          <div className="grid grid-cols-2 gap-2">
-            {TAG_OPTIONS.map(tag => (
-              <button
-                key={tag}
-                type="button"
-                onClick={() => toggleTag(tag)}
-                className={`px-3 py-2 rounded text-sm transition-colors text-left ${
-                  formData.tags.includes(tag)
-                    ? 'bg-amber-500 text-white'
-                    : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
-                }`}
-              >
-                {tag}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* 詳細メモ */}
-        <div>
-          <label className="block text-slate-300 mb-2">詳細メモ</label>
+          <label className="block text-sm font-semibold text-slate-300 mb-1">内容</label>
           <textarea
             name="content"
+            placeholder="この日の作業内容を記入してください"
             value={formData.content}
             onChange={handleChange}
-            className="w-full bg-slate-700 border border-slate-600 rounded px-4 py-2 text-white"
-            rows="6"
-            placeholder="詳しく記録してください。何をしたか、どんな技術を使ったか、学んだことなど..."
+            rows="4"
+            className="w-full px-4 py-2 bg-slate-600 border border-slate-500 rounded text-white placeholder-slate-400"
           />
         </div>
 
-        {error && (
-          <div className="bg-red-900 border border-red-500 text-red-100 px-4 py-2 rounded">
-            {error}
-          </div>
-        )}
-
-        {/* 送信ボタン */}
-        <div className="flex gap-3 pt-4">
-          <button
-            type="submit"
-            disabled={loading}
-            className="flex-1 bg-amber-500 hover:bg-amber-600 disabled:bg-slate-600 text-white font-bold py-2 rounded transition-colors"
-          >
-            {loading ? '保存中...' : '日記を保存'}
-          </button>
-          <button
-            type="button"
-            onClick={onCancel}
-            className="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded transition-colors"
-          >
-            キャンセル
-          </button>
+        {/* 作業時間 */}
+        <div>
+          <label className="block text-sm font-semibold text-slate-300 mb-1">作業時間（時間）</label>
+          <input
+            type="number"
+            name="workedHours"
+            placeholder="例: 8"
+            value={formData.workedHours}
+            onChange={handleChange}
+            min="0"
+            step="0.5"
+            className="w-full px-4 py-2 bg-slate-600 border border-slate-500 rounded text-white placeholder-slate-400"
+          />
         </div>
-      </form>
-    </div>
+      </div>
+
+      {/* ボタン */}
+      <div className="flex gap-2 mt-6">
+        <button
+          type="submit"
+          disabled={loading}
+          className="flex-1 bg-amber-500 hover:bg-amber-600 disabled:bg-slate-600 text-white font-bold px-4 py-2 rounded transition-colors"
+        >
+          {isEditMode ? '更新する' : '作成'}
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="flex-1 bg-slate-600 hover:bg-slate-500 text-white font-bold px-4 py-2 rounded transition-colors"
+        >
+          キャンセル
+        </button>
+      </div>
+    </form>
   );
 }

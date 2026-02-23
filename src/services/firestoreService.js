@@ -2,6 +2,8 @@ import {
   collection,
   addDoc,
   getDocs,
+  getDoc,
+  setDoc,
   updateDoc,
   deleteDoc,
   doc,
@@ -12,6 +14,7 @@ import {
 import { db } from '../firebaseConfig';
 
 const PROJECTS_COLLECTION = 'projects';
+const USERS_COLLECTION = 'users';
 
 // 案件作成
 export const createProject = async (userId, projectData) => {
@@ -167,4 +170,31 @@ export const deleteEntry = async (entryId) => {
     console.error('✗ 日記削除エラー:', error);
     throw error;
   }
+};
+
+export const ensureUserProfile = async (user) => {
+  if (!user?.uid) return null;
+  const userRef = doc(db, USERS_COLLECTION, user.uid);
+  const snapshot = await getDoc(userRef);
+  if (!snapshot.exists()) {
+    const now = serverTimestamp();
+    await setDoc(userRef, {
+      uid: user.uid,
+      email: user.email || '',
+      displayName: user.displayName || '',
+      role: 'user',
+      createdAt: now,
+      updatedAt: now,
+    });
+    return { uid: user.uid, email: user.email || '', displayName: user.displayName || '', role: 'user' };
+  }
+  return { id: snapshot.id, ...snapshot.data() };
+};
+
+export const getUserProfile = async (uid) => {
+  if (!uid) return null;
+  const userRef = doc(db, USERS_COLLECTION, uid);
+  const snapshot = await getDoc(userRef);
+  if (!snapshot.exists()) return null;
+  return { id: snapshot.id, ...snapshot.data() };
 };

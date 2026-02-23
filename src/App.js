@@ -2,6 +2,7 @@ import './App.css';
 import { useEffect, useState } from 'react';
 import { auth } from './firebaseConfig';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { ensureUserProfile } from './services/firestoreService';
 import AuthPage from './pages/AuthPage';
 import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
@@ -22,9 +23,17 @@ function App() {
   const [settingsTab, setSettingsTab] = useState('account');
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      try {
+        setUser(currentUser);
+        if (currentUser) {
+          await ensureUserProfile(currentUser);
+        }
+      } catch (error) {
+        console.error('ユーザープロフィール初期化エラー:', error);
+      } finally {
+        setLoading(false);
+      }
     });
     return () => unsubscribe();
   }, []);

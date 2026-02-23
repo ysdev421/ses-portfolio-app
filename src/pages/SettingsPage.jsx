@@ -1,12 +1,29 @@
+import { useEffect, useState } from 'react';
 import ContactSection from '../components/ContactSection';
 import ContactList from '../components/ContactList';
+import { getUserProfile } from '../services/firestoreService';
 
 export default function SettingsPage({ user, tab = 'account', onTabChange }) {
-  const adminEmails = (process.env.REACT_APP_ADMIN_EMAILS || '')
-    .split(',')
-    .map((e) => e.trim().toLowerCase())
-    .filter(Boolean);
-  const isAdmin = !!user?.email && adminEmails.includes(user.email.toLowerCase());
+  const [profile, setProfile] = useState(null);
+  const [loadingProfile, setLoadingProfile] = useState(true);
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        setLoadingProfile(true);
+        const data = await getUserProfile(user?.uid);
+        setProfile(data);
+      } catch (error) {
+        console.error('プロフィール取得エラー:', error);
+        setProfile(null);
+      } finally {
+        setLoadingProfile(false);
+      }
+    };
+    loadProfile();
+  }, [user?.uid]);
+
+  const isAdmin = profile?.role === 'admin';
 
   return (
     <div className="space-y-6">
@@ -63,6 +80,13 @@ export default function SettingsPage({ user, tab = 'account', onTabChange }) {
       {tab === 'account' && (
         <div className="bg-slate-800 border border-slate-700 rounded-lg p-6">
           <h3 className="text-xl font-serif font-bold text-amber-400 mb-4">アカウント情報</h3>
+          {loadingProfile ? (
+            <p className="text-slate-400 text-sm mb-4">プロフィール読み込み中...</p>
+          ) : (
+            <p className="text-slate-400 text-sm mb-4">
+              権限: <span className="text-white font-semibold">{profile?.role || 'user'}</span>
+            </p>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div className="bg-slate-700/60 border border-slate-600 rounded p-4">
               <p className="text-slate-400 mb-1">表示名</p>

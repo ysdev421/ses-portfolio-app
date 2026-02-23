@@ -106,14 +106,14 @@ export default function EntryForm({ userId, projectId, entry, onSuccess, onCance
 
       <div className="space-y-4">
         {/* 日付 */}
-        <div>
+        <div className="min-w-0">
           <label className="block text-sm font-semibold text-slate-300 mb-1">日付 *</label>
           <input
             type="date"
             name="date"
             value={formData.date}
             onChange={handleChange}
-            className="w-full px-4 py-2 bg-slate-600 border border-slate-500 rounded text-white placeholder-slate-400"
+            className="w-full min-w-0 px-4 py-2 bg-slate-600 border border-slate-500 rounded text-white placeholder-slate-400"
             required
           />
         </div>

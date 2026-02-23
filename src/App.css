@@ -1,0 +1,17 @@
+/* App.css - Tailwindで大半のスタイルを管理 */
+
+/* カスタムホバーエフェクト */
+.card-hover {
+  @apply transition-all duration-300 hover:scale-105;
+}
+
+/* ゴールドアクセントのボタン */
+.btn-gold {
+  @apply bg-gold hover:bg-gold-light text-dark-navy font-semibold py-2 px-4 rounded transition-colors duration-200;
+}
+
+/* 深紺のボタン */
+.btn-navy {
+  @apply bg-light-navy hover:bg-white/10 text-white font-semibold py-2 px-4 rounded transition-colors duration-200 border border-gold/30;
+}
+

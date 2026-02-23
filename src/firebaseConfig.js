@@ -4,14 +4,14 @@ import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
 // Firebase設定
-// TODO: 実際の Firebase プロジェクト設定に置き換えてください
 const firebaseConfig = {
-  apiKey: 'AIzaSyDUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU', // dummy key
-  authDomain: 'ses-portfolio-demo.firebaseapp.com',
-  projectId: 'ses-portfolio-demo',
-  storageBucket: 'ses-portfolio-demo.appspot.com',
-  messagingSenderId: '123456789012',
-  appId: '1:123456789012:web:abcdefghijklmnop',
+  apiKey: "AIzaSyCMCCM1uIDRj7gcGdQx7ExcwGLj0rARtbM",
+  authDomain: "ses-portfolio.firebaseapp.com",
+  projectId: "ses-portfolio",
+  storageBucket: "ses-portfolio.firebasestorage.app",
+  messagingSenderId: "802049399246",
+  appId: "1:802049399246:web:bcd8634a6fd5c79cfaf39f",
+  measurementId: "G-DWCFGXTSMF"
 };
 
 // Firebaseアプリケーションの初期化
@@ -25,9 +25,9 @@ try {
   auth = getAuth(app);
   db = getFirestore(app);
   storage = getStorage(app);
+  console.log('✓ Firebase初期化成功');
 } catch (error) {
-  console.warn('Firebase初期化エラー:', error.message);
-  console.log('Firebase設定を確認してください。');
+  console.error('✗ Firebase初期化エラー:', error.message);
 }
 
 // Firebase サービスのエクスポート

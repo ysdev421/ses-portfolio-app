@@ -1,8 +1,45 @@
 import './App.css';
 import { useEffect, useState } from 'react';
+import { auth } from './firebaseConfig';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+import AuthPage from './pages/AuthPage';
 
 function App() {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState('dashboard');
+
+  useEffect(() => {
+    // Firebase認証状態の監視
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      setUser(null);
+    } catch (error) {
+      console.error('ログアウトエラー:', error);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center">
+        <div className="text-amber-400 text-2xl font-serif">読み込み中...</div>
+      </div>
+    );
+  }
+
+  // ユーザーがログインしていない場合は認証ページを表示
+  if (!user) {
+    return <AuthPage />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white">
@@ -44,6 +81,20 @@ function App() {
               </button>
             </nav>
           </div>
+
+          {/* ユーザー情報とログアウト */}
+          <div className="flex items-center gap-4">
+            <div className="text-right">
+              <p className="text-sm text-slate-300">{user.email}</p>
+              <p className="text-xs text-slate-500">ログイン中</p>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-white transition-colors text-sm font-semibold"
+            >
+              ログアウト
+            </button>
+          </div>
         </div>
       </header>
 
@@ -55,8 +106,8 @@ function App() {
           </h2>
           
           <div className="text-slate-300">
-            <p className="text-lg mb-4">SESスキルポートフォリオへようこそ</p>
-            <p className="mb-6">このアプリケーションは、SES技術者のキャリア実績を管理するためのツールです。</p>
+            <p className="text-lg mb-4">ようこそ、{user.email}さん</p>
+            <p className="mb-6">SESスキルポートフォリオへようこそ。このアプリケーションは、SES技術者のキャリア実績を管理するためのツールです。</p>
             
             {currentPage === 'dashboard' && (
               <div className="space-y-4">
@@ -68,6 +119,12 @@ function App() {
                     <li>プロジェクト発生工数の追跡</li>
                     <li>キャリア情報の一元管理</li>
                   </ul>
+                </div>
+                
+                <div className="bg-blue-900 bg-opacity-30 border border-blue-500 border-opacity-50 p-4 rounded">
+                  <p className="text-blue-300 text-sm">
+                    <strong>info:</strong> Firebase認証機能が有効です。このメールアドレスでアカウントを作成しました。
+                  </p>
                 </div>
                 
                 <button
@@ -82,7 +139,7 @@ function App() {
             {currentPage === 'projects' && (
               <div className="bg-slate-700 p-4 rounded border border-slate-600">
                 <p className="text-slate-400">案件データがまだありません。</p>
-                <p className="text-sm text-slate-500 mt-2">Firebase設定後に案件を追加できます。</p>
+                <p className="text-sm text-slate-500 mt-2">次のステップで、案件追加機能を実装します。</p>
               </div>
             )}
           </div>

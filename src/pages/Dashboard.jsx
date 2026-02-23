@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+﻿import { useState, useEffect, useRef, useCallback } from 'react';
 import { getProjects, getEntries } from '../services/firestoreService';
 
 export default function Dashboard({ user, onNavigate }) {
@@ -149,7 +149,28 @@ export default function Dashboard({ user, onNavigate }) {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
         <h2 className="text-2xl sm:text-3xl font-serif font-bold text-amber-400">ダッシュボード</h2>
         <div className="flex flex-wrap items-center gap-3">
-          <button onClick={handleRefresh} className="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1 rounded">再読み込み</button>
+          <button
+            onClick={handleRefresh}
+            disabled={loading}
+            className="inline-flex items-center gap-2 bg-slate-700 hover:bg-slate-600 disabled:opacity-60 disabled:cursor-not-allowed text-white px-3 py-1 rounded"
+            aria-label="再読み込み"
+          >
+            <svg
+              className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`}
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <polyline points="23 4 23 10 17 10" />
+              <polyline points="1 20 1 14 7 14" />
+              <path d="M3.51 9a9 9 0 0 1 14.13-3.36L23 10M1 14l5.36 4.36A9 9 0 0 0 20.49 15" />
+            </svg>
+            <span>再読み込み</span>
+          </button>
           <div className="text-slate-400 text-sm">ユーザー: {user?.displayName || user?.email}</div>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getEntries, deleteEntry } from '../services/firestoreService';
 import EntryForm from './EntryForm';
 
@@ -24,11 +24,7 @@ export default function ProjectDetail({ user, project, onBack, onEdit }) {
     setTimeout(() => setToast({ msg: '', type: '' }), 3000);
   };
 
-  useEffect(() => {
-    if (project?.id) loadEntries();
-  }, [project?.id]);
-
-  const loadEntries = async () => {
+  const loadEntries = useCallback(async () => {
     if (!project?.id) return;
     try {
       setLoading(true);
@@ -39,7 +35,11 @@ export default function ProjectDetail({ user, project, onBack, onEdit }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [project?.id]);
+
+  useEffect(() => {
+    loadEntries();
+  }, [loadEntries]);
 
   const handleDeleteEntry = async (entryId) => {
     if (!window.confirm('この日記を削除しますか？')) return;

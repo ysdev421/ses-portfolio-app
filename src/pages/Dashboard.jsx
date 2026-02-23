@@ -1,9 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { getProjects, getEntries } from '../services/firestoreService';
 
 export default function Dashboard({ user, onNavigate }) {
-  const [projects, setProjects] = useState([]);
-  const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const isMounted = useRef(true);
   const [error, setError] = useState(null);
@@ -15,14 +13,8 @@ export default function Dashboard({ user, onNavigate }) {
     recentEntries: [],
   });
 
-  useEffect(() => {
-    isMounted.current = true;
-    if (!user) return;
-    loadData();
-    return () => { isMounted.current = false; };
-  }, [user]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
+    if (!user?.uid) return;
     try {
       setLoading(true);
       setError(null);
@@ -30,7 +22,6 @@ export default function Dashboard({ user, onNavigate }) {
       // 案件データ取得
       const projectsData = await getProjects(user.uid);
       if (!isMounted.current) return;
-      setProjects(projectsData);
 
       // 全日記データ取得（各プロジェクトを並列で取得）
       const entryPromises = projectsData.map(p =>
@@ -42,7 +33,6 @@ export default function Dashboard({ user, onNavigate }) {
       const entriesArrays = await Promise.all(entryPromises);
       const allEntries = entriesArrays.flat();
       if (!isMounted.current) return;
-      setEntries(allEntries);
 
       // 統計情報を集計
       calculateStats(projectsData, allEntries);
@@ -52,7 +42,13 @@ export default function Dashboard({ user, onNavigate }) {
     } finally {
       if (isMounted.current) setLoading(false);
     }
-  };
+  }, [user?.uid]);
+
+  useEffect(() => {
+    isMounted.current = true;
+    loadData();
+    return () => { isMounted.current = false; };
+  }, [loadData]);
 
   const formatDuration = (months) => {
     const years = Math.floor(months / 12);
@@ -62,23 +58,12 @@ export default function Dashboard({ user, onNavigate }) {
     return `${years}年${rem}ヶ月`;
   };
 
-  const toHours = (amount, unit) => {
-    if (unit === 'days')   return amount * 8;
-    if (unit === 'months') return amount * 160;
-    return amount;
-  };
-
   const calculateStats = (projectsData, allEntries) => {
-    // 案件から作業時間・スキルを集計
-    let totalProjectHours = 0;
+    // 案件からスキルを集計
     const skillsMap = {};
     const techExperience = {};
 
     projectsData.forEach(project => {
-      const amount = project.workedAmount ?? project.workedHours ?? 0;
-      const unit   = project.workedUnit   ?? 'hours';
-      totalProjectHours += toHours(Number(amount), unit);
-
       // スキルをカウント
       if (project.skills && Array.isArray(project.skills)) {
         project.skills.forEach(skill => {
@@ -103,17 +88,12 @@ export default function Dashboard({ user, onNavigate }) {
       }
     });
 
-    // 日記から作業時間を集計
-    let totalEntryHours = 0;
+    // 日記から最新データを集計
     const recentEntries = [...allEntries].sort((a, b) => {
       const timeA = a.createdAt?.toMillis?.() || 0;
       const timeB = b.createdAt?.toMillis?.() || 0;
       return timeB - timeA;
     }).slice(0, 5);
-
-    allEntries.forEach(entry => {
-      totalEntryHours += Number(entry.workedHours || 0);
-    });
 
     // 最近の案件（最新5件）& 参画中
     const recentProjects = [...projectsData].slice(0, 5);

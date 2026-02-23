@@ -1,70 +1,141 @@
-# Getting Started with Create React App
+# SES エンジニア向けキャリア記録アプリ
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+SES（客先常駐）エンジニア、フリーランスエンジニアが案件ごとの詳細な仕事内容を記録し、転職時に「実際にやったこと」を思い出す、給与交渉の材料にするためのアプリケーション。
 
-## Available Scripts
+## 特徴
 
-In the project directory, you can run:
+- **ダッシュボード**: 技術別の累計経験年数をカード表示
+- **案件管理**: 案件の基本情報、詳細、使用技術を記録
+- **日記機能**: スマホから素早くやったことを記録
+- **タグシステム**: 市場価値ベースの分類（開発スキル、ビジネススキル、技術深掘り、学習）
+- **検索・フィルタ**: 技術、時期、タグで絞り込み
+- **レスポンシブデザイン**: モバイル・PC両対応
 
-### `npm start`
+## 使用技術
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- **フロントエンド**: React 19.2.4
+- **スタイリング**: Tailwind CSS 4.2.1
+- **バックエンド・認証**: Firebase
+- **デプロイ**: Vercel（予定）
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## セットアップ
 
-### `npm test`
+### 前提条件
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- Node.js 14.0 以上
+- npm または yarn
 
-### `npm run build`
+### インストール
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+1. リポジトリをクローン
+```bash
+git clone <repository-url>
+cd ses-portfolio-app
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+2. 依存パッケージをインストール
+```bash
+npm install
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+3. Firebase設定
+   - Firebase Consoleで新しいプロジェクトを作成
+   - `.env.local` ファイルに以下の環境変数を設定（`.env.local`テンプレートを参照）
 
-### `npm run eject`
+```env
+REACT_APP_FIREBASE_API_KEY=your_api_key
+REACT_APP_FIREBASE_AUTH_DOMAIN=your_auth_domain
+REACT_APP_FIREBASE_PROJECT_ID=your_project_id
+REACT_APP_FIREBASE_STORAGE_BUCKET=your_storage_bucket
+REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+REACT_APP_FIREBASE_APP_ID=your_app_id
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### 開発サーバーの起動
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```bash
+npm start
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+ブラウザで [http://localhost:3000](http://localhost:3000) を開きます。
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## ビルド
 
-## Learn More
+```bash
+npm run build
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+`build` フォルダに本番用ビルドが作成されます。
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## テスト
 
-### Code Splitting
+```bash
+npm test
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+テストを実行します。
 
-### Analyzing the Bundle Size
+## プロジェクト構造
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+```
+src/
+├── App.js              # メインアプリケーション
+├── App.css             # Tailwindカスタムスタイル
+├── firebaseConfig.js   # Firebase設定
+├── index.js            # エントリーポイント
+├── index.css           # グローバルスタイル（Tailwind）
+└── components/         # Reactコンポーネント（将来作成予定）
+```
 
-### Making a Progressive Web App
+## デザインガイドライン
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+### カラーパレット
 
-### Advanced Configuration
+- **背景色**: 深紺（`#0f172a`）
+- **カード背景**: 深紺（`#1e293b`）
+- **テキスト**: ライト紺（`#334155`）
+- **アクセント**: ゴールド（`#f59e0b`）
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+### フォント
 
-### Deployment
+- **見出し**: セリフフォント（Georgia, Garamond）
+- **本文**: サンセリフ（Segoe UI, Roboto）
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+### レスポンシブブレークポイント
 
-### `npm run build` fails to minify
+- **モバイル**: < 640px
+- **タブレット**: 640px - 1024px
+- **PC**: > 1024px
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## 主要な今後の実装
+
+- [ ] ユーザー認証（ログイン・サインアップ）
+- [ ] 案件管理CRUD
+- [ ] 日記機能
+- [ ] タグシステム
+- [ ] フィルタ・検索機能
+- [ ] データベーススキーマ設計
+- [ ] API設計
+
+## トラブルシューティング
+
+### Firebase設定エラー
+- `.env.local` ファイルが存在することを確認
+- 環境変数の値が正しいか確認
+- Firebase Consoleでプロジェクト設定を再確認
+
+### Tailwind CSSが反映されない
+- `npm install` で依存パッケージが全てインストールされているか確認
+- `tailwind.config.js` と `postcss.config.js` が正しく設定されているか確認
+- ブラウザキャッシュをクリアし、サーバーを再起動
+
+## ライセンス
+
+MIT
+
+## 参考資料
+
+- [React ドキュメント](https://react.dev)
+- [Tailwind CSS](https://tailwindcss.com)
+- [Firebase ドキュメント](https://firebase.google.com/docs)
+- [Create React App](https://create-react-app.dev)

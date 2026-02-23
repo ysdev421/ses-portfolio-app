@@ -48,6 +48,7 @@ export default function LandingPage({ onStartSignup, onStartLogin }) {
             </div>
           </div>
         </section>
+
       </main>
     </div>
   );

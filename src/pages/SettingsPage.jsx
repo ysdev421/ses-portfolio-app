@@ -1,27 +1,35 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import ContactSection from '../components/ContactSection';
 import ContactList from '../components/ContactList';
-import { getUserProfile } from '../services/firestoreService';
+import { ensureUserProfile, getUserProfile } from '../services/firestoreService';
 
 export default function SettingsPage({ user, tab = 'account', onTabChange }) {
   const [profile, setProfile] = useState(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
+  const [profileError, setProfileError] = useState('');
+
+  const loadProfile = useCallback(async () => {
+    try {
+      setLoadingProfile(true);
+      setProfileError('');
+      let data = await getUserProfile(user?.uid);
+      if (!data && user) {
+        await ensureUserProfile(user);
+        data = await getUserProfile(user?.uid);
+      }
+      setProfile(data);
+    } catch (error) {
+      console.error('プロフィール取得エラー:', error);
+      setProfile(null);
+      setProfileError(error.message || 'プロフィール取得に失敗しました');
+    } finally {
+      setLoadingProfile(false);
+    }
+  }, [user]);
 
   useEffect(() => {
-    const loadProfile = async () => {
-      try {
-        setLoadingProfile(true);
-        const data = await getUserProfile(user?.uid);
-        setProfile(data);
-      } catch (error) {
-        console.error('プロフィール取得エラー:', error);
-        setProfile(null);
-      } finally {
-        setLoadingProfile(false);
-      }
-    };
     loadProfile();
-  }, [user?.uid]);
+  }, [loadProfile]);
 
   const isAdmin = profile?.role === 'admin';
 
@@ -80,6 +88,11 @@ export default function SettingsPage({ user, tab = 'account', onTabChange }) {
       {tab === 'account' && (
         <div className="bg-slate-800 border border-slate-700 rounded-lg p-6">
           <h3 className="text-xl font-serif font-bold text-amber-400 mb-4">アカウント情報</h3>
+          {profileError && (
+            <div className="bg-red-700/20 border border-red-600 text-red-200 rounded px-3 py-2 text-sm mb-4">
+              {profileError}
+            </div>
+          )}
           {loadingProfile ? (
             <p className="text-slate-400 text-sm mb-4">プロフィール読み込み中...</p>
           ) : (
@@ -87,6 +100,12 @@ export default function SettingsPage({ user, tab = 'account', onTabChange }) {
               権限: <span className="text-white font-semibold">{profile?.role || 'user'}</span>
             </p>
           )}
+          <button
+            onClick={loadProfile}
+            className="mb-4 bg-slate-700 hover:bg-slate-600 text-white text-sm font-semibold px-3 py-1.5 rounded transition-colors"
+          >
+            プロフィール初期化 / 再取得
+          </button>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div className="bg-slate-700/60 border border-slate-600 rounded p-4">
               <p className="text-slate-400 mb-1">表示名</p>

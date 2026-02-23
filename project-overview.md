@@ -5,6 +5,23 @@
 - **市場規模：** 日本の SES エンジニア数十万人
 - **ニーズ：** 案件ごとの詳細な仕事内容を記録し、転職時に「実際にやったこと」を思い出す、給与交渉の材料にする
 
+## 実装状況補足（2026-02 時点）
+
+### 実装済み（overview未記載または記載が弱い）
+- LP（トップ）→ 認証画面導線
+- Googleログイン（Popup失敗時のRedirectフォールバックあり）
+- ヘッダーのハンバーガーメニュー
+- 設定ページ（アカウント情報 / 問い合わせ送信 / 問い合わせ履歴）
+- 管理者向け問い合わせ受信一覧（`users/{uid}.role = "admin"` で表示）
+- キャリアシート画面（CSV出力、印刷/PDF保存）
+- ダッシュボードの工程別（要件定義/設計/実装など）累計経験年数表示
+- 初回ユーザー向け「最初の案件登録」導線
+
+### 未実装（overviewにあるが現状未対応）
+- タグベースの日記分類・分析（現状は日記の本文中心）
+- 高度な検索・フィルタ（技術/期間/タグのUI検索は未実装）
+- 管理者による問い合わせステータス更新（`new` 固定保存）
+
 ## 主要機能
 
 ### 1. ダッシュボード
@@ -127,30 +144,66 @@
 }
 ```
 
-#### `projects` (user ごと)
+#### `projects`（現行実装）
 ```
-users/{uid}/projects/{projectId}
+projects/{projectId}
 {
-  name: string (案件名)
-  client: string (クライアント企業)
-  startDate: date
-  endDate: date
-  role: string (役職)
-  technologies: array (使用技術)
-  description: string (案件説明)
+  userId: string
+  projectName: string
+  company: string
+  startDate: string(yyyy-mm-dd)
+  endDate: string(yyyy-mm-dd)
+  role: string
+  skills: string[]
+  phases: string[]
+  description: string
+  contractTier: string
+  intermediaryCompanies: string[]
+  monthlyRate: number
+  rateHistory: { date: string, rate: number|string, note: string }[]
   createdAt: timestamp
   updatedAt: timestamp
 }
 ```
 
-#### `entries` (project ごと)
+#### `entries`（現行実装）
 ```
-users/{uid}/projects/{projectId}/entries/{entryId}
+entries/{entryId}
 {
-  date: date
+  userId: string
+  projectId: string
+  date: timestamp|string
   title: string
-  tags: array (タグ複数)
-  content: string (詳細メモ)
+  content: string
+  workedHours: number
+  createdAt: timestamp
+  updatedAt: timestamp
+}
+```
+
+#### `contact_inquiries`（現行実装）
+```
+contact_inquiries/{inquiryId}
+{
+  userId: string
+  userEmail: string
+  name: string
+  email: string
+  company: string
+  message: string
+  status: "new"
+  createdAt: timestamp
+}
+```
+
+#### `users`（現行実装）
+```
+users/{uid}
+{
+  uid: string
+  email: string
+  displayName: string
+  role: "user" | "admin"
   createdAt: timestamp
   updatedAt: timestamp
 }

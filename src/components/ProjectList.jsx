@@ -50,7 +50,7 @@ export default function ProjectList({ user, onAddProject, onViewProject, onRefre
     }
   };
 
-  if (loading) {
+  if (false && loading) {
     return <div className="text-center py-12 text-slate-400">読み込み中...</div>;
   }
 
@@ -205,7 +205,9 @@ export default function ProjectList({ user, onAddProject, onViewProject, onRefre
         <h2 className="text-2xl font-serif font-bold text-amber-400">案件一覧</h2>
       </div>
 
-      {projects.length === 0 ? (
+      {loading ? (
+        <div className="text-center py-12 text-slate-400">Loading...</div>
+      ) : projects.length === 0 ? (
         <div className="bg-slate-800 border border-slate-700 rounded-lg p-8 text-center">
           <p className="text-slate-400 mb-4">案件がまだありません</p>
           <button

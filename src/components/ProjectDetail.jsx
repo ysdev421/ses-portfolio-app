@@ -91,7 +91,7 @@ export default function ProjectDetail({ user, project, onBack, onEdit }) {
         <div className="flex justify-between items-start mb-6">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <h2 className="text-3xl font-serif font-bold text-amber-400">
+              <h2 className="text-2xl sm:text-3xl font-serif font-bold text-amber-400">
                 {project.projectName}
               </h2>
               {isActive ? (
@@ -261,7 +261,7 @@ export default function ProjectDetail({ user, project, onBack, onEdit }) {
                       <p className="text-slate-400 text-sm">{dateStr}</p>
                       <h4 className="text-white font-bold text-lg">{entry.title}</h4>
                     </div>
-                    <div className="flex gap-3">
+                    <div className="flex flex-wrap gap-3">
                       <button
                         onClick={() => { setEditingEntry(entry); setShowEntryForm(true); }}
                         className="text-blue-400 hover:text-blue-300 text-sm"

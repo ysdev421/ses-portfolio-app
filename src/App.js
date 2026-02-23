@@ -105,11 +105,11 @@ function App() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white">
       {/* ヘッダー */}
       <header className="bg-slate-950 border-b border-slate-700 shadow-lg sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 flex justify-between items-center">
-          <div className="flex items-center gap-6">
+        <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6 sm:px-6 lg:px-8 flex flex-wrap gap-3 justify-between items-start sm:items-center">
+          <div className="flex min-w-0 items-start sm:items-center gap-3 sm:gap-6">
             <div>
               <h1 
-                className="text-3xl font-serif font-bold text-amber-400 cursor-pointer hover:text-amber-300 transition-colors"
+                className="text-xl sm:text-2xl lg:text-3xl leading-tight font-serif font-bold text-amber-400 cursor-pointer hover:text-amber-300 transition-colors"
                 onClick={() => setCurrentPage('dashboard')}
               >
                 SES キャリア記録
@@ -164,20 +164,20 @@ function App() {
             </nav>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="text-right">
+          <div className="ml-auto flex items-center gap-2 sm:gap-4">
+            <div className="hidden md:block text-right max-w-[14rem]">
               <p className="text-sm text-slate-300">{user.email}</p>
               <p className="text-xs text-slate-500">ログイン中</p>
             </div>
             <button
               onClick={handleLogout}
-              className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-white transition-colors text-sm font-semibold"
+              className="hidden sm:inline-flex bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-white transition-colors text-sm font-semibold"
             >
               ログアウト
             </button>
             <button
               onClick={() => setMenuOpen(true)}
-              className="bg-slate-700 hover:bg-slate-600 px-3 py-2 rounded text-white transition-colors"
+              className="bg-slate-700 hover:bg-slate-600 px-3 py-2 rounded text-white transition-colors shrink-0"
               aria-label="メニューを開く"
             >
               ☰
@@ -258,7 +258,7 @@ function App() {
       )}
 
       {/* メインコンテンツ */}
-      <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <main className="max-w-7xl mx-auto px-4 py-5 sm:py-8 sm:px-6 lg:px-8">
         {currentPage === 'dashboard' && (
           <Dashboard
             user={user}

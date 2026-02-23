@@ -146,9 +146,9 @@ export default function Dashboard({ user, onNavigate }) {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-3xl font-serif font-bold text-amber-400">ダッシュボード</h2>
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+        <h2 className="text-2xl sm:text-3xl font-serif font-bold text-amber-400">ダッシュボード</h2>
+        <div className="flex flex-wrap items-center gap-3">
           <button onClick={handleRefresh} className="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1 rounded">再読み込み</button>
           <div className="text-slate-400 text-sm">ユーザー: {user?.displayName || user?.email}</div>
         </div>
@@ -176,10 +176,10 @@ export default function Dashboard({ user, onNavigate }) {
       )}
 
       {/* 統計カード */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
         <div className="bg-gradient-to-br from-slate-800 to-slate-700 border border-slate-700 rounded-lg p-6 hover:border-amber-500 transition-all">
           <p className="text-slate-400 text-sm font-semibold">案件数</p>
-          <p className="text-4xl font-bold text-amber-400 mt-3">{stats.totalProjects}</p>
+          <p className="text-3xl sm:text-4xl font-bold text-amber-400 mt-3">{stats.totalProjects}</p>
           <p className="text-slate-400 text-xs mt-2">登録済み</p>
         </div>
 
@@ -211,13 +211,13 @@ export default function Dashboard({ user, onNavigate }) {
 
         <div className="bg-gradient-to-br from-slate-800 to-slate-700 border border-slate-700 rounded-lg p-6 hover:border-amber-500 transition-all">
           <p className="text-slate-400 text-sm font-semibold">日記数</p>
-          <p className="text-4xl font-bold text-amber-400 mt-3">{stats.totalEntries}</p>
+          <p className="text-3xl sm:text-4xl font-bold text-amber-400 mt-3">{stats.totalEntries}</p>
           <p className="text-slate-400 text-xs mt-2">記録済み</p>
         </div>
 
         <div className="bg-gradient-to-br from-slate-800 to-slate-700 border border-slate-700 rounded-lg p-6 hover:border-amber-500 transition-all">
           <p className="text-slate-400 text-sm font-semibold">スキル数</p>
-          <p className="text-4xl font-bold text-amber-400 mt-3">{Object.keys(stats.skills).length}</p>
+          <p className="text-3xl sm:text-4xl font-bold text-amber-400 mt-3">{Object.keys(stats.skills).length}</p>
           <p className="text-slate-400 text-xs mt-2">種類</p>
         </div>
       </div>
@@ -228,7 +228,7 @@ export default function Dashboard({ user, onNavigate }) {
         {topTechExp.length === 0 ? (
           <p className="text-slate-400">案件の開始日・終了日を登録すると経験年数が表示されます</p>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {topTechExp.map(([skill, months]) => (
               <div
                 key={skill}
@@ -244,7 +244,7 @@ export default function Dashboard({ user, onNavigate }) {
 
       {/* 最近の案件 */}
       <div className="bg-slate-800 border border-slate-700 rounded-lg p-6 mb-8">
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex flex-wrap justify-between items-center gap-2 mb-4">
           <h3 className="text-xl font-serif font-bold text-amber-400">最近の案件</h3>
           <button
             onClick={() => onNavigate('projects')}
@@ -266,14 +266,14 @@ export default function Dashboard({ user, onNavigate }) {
                   className="border-l-4 border-slate-500 hover:border-amber-500 bg-slate-700 rounded px-4 py-3 cursor-pointer transition-all"
                   onClick={() => onNavigate('project-detail', project)}
                 >
-                  <div className="flex justify-between items-start">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
                     <div className="flex-1 min-w-0">
                       <p className="text-white font-semibold truncate">{project.projectName}</p>
                       <p className="text-slate-400 text-sm">{project.company}</p>
                       <p className="text-slate-500 text-xs mt-1">{startStr} 〜 {endStr}</p>
                     </div>
                     {project.skills && project.skills.length > 0 && (
-                      <div className="flex flex-wrap gap-1 ml-3 max-w-xs justify-end">
+                      <div className="flex flex-wrap gap-1 sm:ml-3 max-w-xs sm:justify-end">
                         {project.skills.slice(0, 3).map(skill => (
                           <span
                             key={skill}
@@ -301,7 +301,7 @@ export default function Dashboard({ user, onNavigate }) {
         {topPhaseExp.length === 0 ? (
           <p className="text-slate-400">案件の担当フェーズを登録すると経験年数が表示されます</p>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {topPhaseExp.map(([phase, months]) => (
               <div
                 key={phase}
@@ -327,7 +327,7 @@ export default function Dashboard({ user, onNavigate }) {
               const dateStr = entryDate.toLocaleDateString('ja-JP');
               return (
                 <div key={entry.id} className="border-l-4 border-amber-500 bg-slate-700 rounded px-4 py-3">
-                  <div className="flex justify-between items-start">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
                     <div>
                       <p className="text-slate-400 text-sm">{dateStr}</p>
                       <p className="text-white font-semibold">{entry.title}</p>

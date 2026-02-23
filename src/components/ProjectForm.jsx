@@ -180,7 +180,7 @@ export default function ProjectForm({ user, project, onSuccess, onCancel }) {
   const intermediaryCount = getIntermediaryCount(formData.contractTier);
 
   return (
-    <div className="bg-slate-800 border border-slate-700 rounded-lg p-6 max-w-2xl">
+    <div className="bg-slate-800 border border-slate-700 rounded-lg p-4 sm:p-6 max-w-2xl">
       <h2 className="text-2xl font-serif font-bold text-amber-400 mb-6">
         {isEditMode ? '案件を編集' : '新規案件を追加'}
       </h2>
@@ -250,7 +250,7 @@ export default function ProjectForm({ user, project, onSuccess, onCancel }) {
         )}
 
         {/* 開始日・終了日 */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-slate-300 mb-2 font-semibold">開始日 *</label>
             <input
@@ -327,7 +327,7 @@ export default function ProjectForm({ user, project, onSuccess, onCancel }) {
           {formData.rateHistory.length > 0 && (
             <div className="space-y-2 bg-slate-700/50 border border-slate-600 rounded-lg p-4">
               {formData.rateHistory.map((entry, idx) => (
-                <div key={idx} className="grid grid-cols-[1fr_1fr_2fr_auto] gap-2 items-center">
+                <div key={idx} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_2fr_auto] gap-2 items-center">
                   <input
                     type="date" value={entry.date}
                     onChange={e => updateRateEntry(idx, 'date', e.target.value)}
@@ -350,7 +350,7 @@ export default function ProjectForm({ user, project, onSuccess, onCancel }) {
                   />
                   <button
                     type="button" onClick={() => removeRateEntry(idx)}
-                    className="text-red-400 hover:text-red-300 text-sm px-1"
+                    className="text-red-400 hover:text-red-300 text-sm px-1 justify-self-end"
                   >✕</button>
                 </div>
               ))}
@@ -375,7 +375,7 @@ export default function ProjectForm({ user, project, onSuccess, onCancel }) {
               </button>
             ))}
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <input
               type="text" value={customSkillInput}
               onChange={e => setCustomSkillInput(e.target.value)}
@@ -426,7 +426,7 @@ export default function ProjectForm({ user, project, onSuccess, onCancel }) {
           </div>
         )}
 
-        <div className="flex gap-3 pt-4">
+        <div className="flex flex-col sm:flex-row gap-3 pt-4">
           <button
             type="submit" disabled={loading}
             className="flex-1 bg-amber-500 hover:bg-amber-600 disabled:bg-slate-600 text-white font-bold py-2 rounded transition-colors"

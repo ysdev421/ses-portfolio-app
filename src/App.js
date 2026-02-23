@@ -1,4 +1,4 @@
-import './App.css';
+﻿import './App.css';
 import { useEffect, useState } from 'react';
 import { auth } from './firebaseConfig';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
@@ -7,6 +7,7 @@ import AuthPage from './pages/AuthPage';
 import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
 import CareerSheet from './pages/CareerSheet';
+import NewsPage from './pages/NewsPage';
 import SettingsPage from './pages/SettingsPage';
 import ProjectForm from './components/ProjectForm';
 import ProjectList from './components/ProjectList';
@@ -102,7 +103,7 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white">
+    <div className="h-full overflow-y-auto overscroll-y-none bg-gradient-to-br from-slate-900 to-slate-800 text-white">
       {/* ヘッダー */}
       <header className="bg-slate-950 border-b border-slate-700 shadow-lg sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6 sm:px-6 lg:px-8 flex flex-wrap gap-3 justify-between items-start sm:items-center">
@@ -147,6 +148,16 @@ function App() {
                 }`}
               >
                 キャリアシート
+              </button>
+              <button
+                onClick={() => navigateTo('news')}
+                className={`font-semibold transition-colors py-2 px-4 rounded ${
+                  currentPage === 'news'
+                    ? 'text-amber-400 bg-slate-700'
+                    : 'text-slate-300 hover:text-white hover:bg-slate-700'
+                }`}
+              >
+                ニュース
               </button>
               <button
                 onClick={() => {
@@ -210,6 +221,7 @@ function App() {
               <button onClick={() => navigateTo('dashboard')} className="w-full text-left bg-slate-800 hover:bg-slate-700 rounded px-3 py-2">ダッシュボード</button>
               <button onClick={() => navigateTo('projects')} className="w-full text-left bg-slate-800 hover:bg-slate-700 rounded px-3 py-2">案件一覧</button>
               <button onClick={() => navigateTo('career-sheet')} className="w-full text-left bg-slate-800 hover:bg-slate-700 rounded px-3 py-2">キャリアシート</button>
+              <button onClick={() => navigateTo('news')} className="w-full text-left bg-slate-800 hover:bg-slate-700 rounded px-3 py-2">ニュース</button>
             </div>
 
             <div className="space-y-2 mb-6">
@@ -286,6 +298,8 @@ function App() {
             user={user}
           />
         )}
+
+        {currentPage === 'news' && <NewsPage />}
 
         {currentPage === 'settings' && (
           <SettingsPage

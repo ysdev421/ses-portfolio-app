@@ -19,6 +19,8 @@ const steps = [
   },
 ];
 
+const DEMO_VIDEO_URL = process.env.REACT_APP_DEMO_VIDEO_URL || '';
+
 export default function LandingPage({
   onStartSignup,
   onStartLogin,
@@ -101,15 +103,29 @@ export default function LandingPage({
         <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
           <div className="rounded-2xl border border-slate-700 bg-slate-900 p-5">
             <p className="text-sm text-amber-300 font-semibold mb-2">デモ動画（60秒）</p>
-            <div className="rounded-xl border border-slate-700 bg-slate-950 h-64 flex items-center justify-center">
-              <div className="text-center">
-                <p className="text-slate-200 font-semibold">操作デモを見る</p>
-                <p className="text-slate-400 text-sm mt-1">案件登録 → 面談ログ → キャリア整理</p>
-                <button onClick={onOpenDemo} className="mt-4 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded text-sm font-semibold">
-                  デモモードを開く
-                </button>
+            {DEMO_VIDEO_URL ? (
+              <div className="rounded-xl border border-slate-700 overflow-hidden bg-black">
+                <video
+                  className="w-full h-64 object-cover"
+                  src={DEMO_VIDEO_URL}
+                  controls
+                  playsInline
+                  preload="metadata"
+                />
               </div>
-            </div>
+            ) : (
+              <div className="rounded-xl border border-slate-700 bg-slate-950 h-64 flex items-center justify-center">
+                <div className="text-center">
+                  <p className="text-slate-200 font-semibold">動画URL未設定</p>
+                  <p className="text-slate-400 text-sm mt-1">
+                    `REACT_APP_DEMO_VIDEO_URL` を設定すると動画を表示します
+                  </p>
+                  <button onClick={onOpenDemo} className="mt-4 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded text-sm font-semibold">
+                    先にデモモードを開く
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="rounded-2xl border border-amber-500/40 bg-amber-500/10 p-5">

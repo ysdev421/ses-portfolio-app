@@ -2,6 +2,8 @@ import PublicHeader from '../components/PublicHeader';
 import { useSeo } from '../utils/seo';
 
 const CONTACT_EMAIL = process.env.REACT_APP_CONTACT_EMAIL || '';
+const TECHCLIPS_AFF_URL =
+  process.env.REACT_APP_AFF_TECHCLIPS_URL || 'https://agent.tech-clips.com/lp_aff';
 
 export default function AboutPage({ onNavigatePublic, onStartLogin, onStartSignup }) {
   useSeo({
@@ -46,6 +48,30 @@ export default function AboutPage({ onNavigatePublic, onStartLogin, onStartSignu
           <p className="mt-3 text-sm text-slate-300">
             React / Firebase / Tailwind CSS を中心に構築しています。
           </p>
+        </section>
+
+        <section className="rounded-xl border border-slate-700 bg-slate-900 p-6">
+          <h2 className="text-xl font-bold text-amber-300">PR（アフィリエイト）</h2>
+          <p className="mt-3 text-sm text-slate-300">
+            本サイトには、広告を含むリンクがあります。以下は提携中プログラムの紹介です。
+          </p>
+          <div className="mt-4 rounded-lg border border-slate-700 bg-slate-800 p-4">
+            <p className="text-white font-semibold">TechClipsエージェント</p>
+            <p className="text-slate-300 text-sm mt-2">
+              ITエンジニア向け転職エージェント。求人は事業会社中心で、年収アップを目指す方向け。
+            </p>
+            <a
+              className="inline-block mt-3 text-amber-300 hover:text-amber-200"
+              href={TECHCLIPS_AFF_URL}
+              target="_blank"
+              rel="noopener noreferrer sponsored nofollow"
+            >
+              公式ページを見る
+            </a>
+            <p className="text-slate-500 text-xs mt-2">
+              ※成果条件・対象は広告主ページの最新情報をご確認ください。
+            </p>
+          </div>
         </section>
 
         <section className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-6">

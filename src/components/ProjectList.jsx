@@ -15,6 +15,9 @@ export default function ProjectList({ user, onAddProject, onViewProject, onRefre
   const [toDate, setToDate] = useState('');
   const [isFilterOpen, setIsFilterOpen] = useState(true);
 
+  const demoEmail = (process.env.REACT_APP_DEMO_EMAIL || '').trim().toLowerCase();
+  const currentEmail = (user?.email || '').trim().toLowerCase();
+  const isDemoUser = !!demoEmail && currentEmail === demoEmail;
   const loadProjects = useCallback(async () => {
     if (!user) return;
     try {
@@ -172,11 +175,20 @@ export default function ProjectList({ user, onAddProject, onViewProject, onRefre
         <h2 className="text-2xl font-serif font-bold text-amber-400">案件一覧</h2>
         <button
           onClick={onAddProject}
-          className="bg-amber-500 hover:bg-amber-600 text-white font-bold px-4 py-2 rounded transition-colors"
+          disabled={isDemoUser}
+          title={isDemoUser ? 'Demo users cannot add projects' : 'Add project'}
+          className={`font-bold px-4 py-2 rounded transition-colors ${
+            isDemoUser
+              ? 'bg-slate-600 text-slate-300 cursor-not-allowed'
+              : 'bg-amber-500 hover:bg-amber-600 text-white'
+          }`}
         >
           + 案件追加
         </button>
       </div>
+      {isDemoUser && (
+        <p className="text-slate-400 text-xs mt-1">Demo mode is read-only. Project creation is disabled.</p>
+      )}
 
       {loading ? (
         <div className="text-center py-12 text-slate-400">読み込み中...</div>
@@ -185,7 +197,13 @@ export default function ProjectList({ user, onAddProject, onViewProject, onRefre
           <p className="text-slate-400 mb-4">案件がまだありません</p>
           <button
             onClick={onAddProject}
-            className="bg-amber-500 hover:bg-amber-600 text-white font-bold px-6 py-2 rounded transition-colors"
+            disabled={isDemoUser}
+            title={isDemoUser ? 'Demo users cannot add projects' : 'Add first project'}
+            className={`font-bold px-6 py-2 rounded transition-colors ${
+              isDemoUser
+                ? 'bg-slate-600 text-slate-300 cursor-not-allowed'
+                : 'bg-amber-500 hover:bg-amber-600 text-white'
+            }`}
           >
             最初の案件を追加
           </button>

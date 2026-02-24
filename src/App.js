@@ -99,30 +99,30 @@ function App() {
     trackEvent('trial_login_click', { source, page_path: publicPath });
 
     if (!demoEmail || !demoPassword) {
-      window.alert('Demo login is not configured. Set REACT_APP_DEMO_EMAIL and REACT_APP_DEMO_PASSWORD.');
+      window.alert('体験版ログインの設定が未完了です。REACT_APP_DEMO_EMAIL / REACT_APP_DEMO_PASSWORD を設定してください。');
       return;
     }
 
     try {
       await signInWithEmailAndPassword(auth, demoEmail, demoPassword);
     } catch (error) {
-      console.error('Demo login error:', error);
+      console.error('体験版ログインエラー:', error);
 
       const code = error?.code || '';
       if (code === 'auth/invalid-credential' || code === 'auth/wrong-password' || code === 'auth/user-not-found') {
-        window.alert('Demo login failed. Check demo email/password and that the demo user exists in Firebase Auth.');
+        window.alert('体験版ログインに失敗しました。メールアドレス/パスワード、または体験版ユーザーの存在を確認してください。');
         return;
       }
       if (code === 'auth/too-many-requests') {
-        window.alert('Too many attempts. Please wait and try again.');
+        window.alert('試行回数が多すぎます。しばらく時間をおいて再試行してください。');
         return;
       }
       if (code === 'auth/network-request-failed') {
-        window.alert('Network error while logging in. Please check your connection.');
+        window.alert('ネットワークエラーで体験版ログインに失敗しました。通信状況を確認してください。');
         return;
       }
 
-      window.alert(`Demo login failed. (${code || 'unknown-error'})`);
+      window.alert(`体験版ログインに失敗しました。(${code || 'unknown-error'})`);
     }
   };
 

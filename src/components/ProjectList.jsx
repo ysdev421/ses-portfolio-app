@@ -176,7 +176,7 @@ export default function ProjectList({ user, onAddProject, onViewProject, onRefre
         <button
           onClick={onAddProject}
           disabled={isDemoUser}
-          title={isDemoUser ? 'Demo users cannot add projects' : 'Add project'}
+          title={isDemoUser ? '体験版では案件追加はできません' : '案件を追加'}
           className={`font-bold px-4 py-2 rounded transition-colors ${
             isDemoUser
               ? 'bg-slate-600 text-slate-300 cursor-not-allowed'
@@ -187,7 +187,7 @@ export default function ProjectList({ user, onAddProject, onViewProject, onRefre
         </button>
       </div>
       {isDemoUser && (
-        <p className="text-slate-400 text-xs mt-1">Demo mode is read-only. Project creation is disabled.</p>
+        <p className="text-slate-400 text-xs mt-1">体験版は閲覧専用です。案件追加はできません。</p>
       )}
 
       {loading ? (
@@ -198,7 +198,7 @@ export default function ProjectList({ user, onAddProject, onViewProject, onRefre
           <button
             onClick={onAddProject}
             disabled={isDemoUser}
-            title={isDemoUser ? 'Demo users cannot add projects' : 'Add first project'}
+            title={isDemoUser ? '体験版では案件追加はできません' : '最初の案件を追加'}
             className={`font-bold px-6 py-2 rounded transition-colors ${
               isDemoUser
                 ? 'bg-slate-600 text-slate-300 cursor-not-allowed'

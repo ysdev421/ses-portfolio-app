@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { getProjects, deleteProject } from '../services/firestoreService';
 import useToast from '../hooks/useToast';
-import { parseDateInput, toSlashDate, isActiveProject } from '../utils/date';
+import { parseDateInput, isActiveProject } from '../utils/date';
 import CustomDateInput from './CustomDateInput';
 
 export default function ProjectList({ user, onAddProject, onViewProject, onRefresh }) {

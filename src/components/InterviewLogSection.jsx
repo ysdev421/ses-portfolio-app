@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { createInterviewLog, getInterviewLogs, updateInterviewLog } from '../services/firestoreService';
 import { normalizeDateString, toYmd, toSlashDate } from '../utils/date';
 import CustomDateInput from './CustomDateInput';

@@ -1,4 +1,4 @@
-﻿import './App.css';
+import './App.css';
 import { useEffect, useState } from 'react';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth } from './firebaseConfig';
@@ -186,7 +186,7 @@ function App() {
               <p className="text-slate-400 mt-1 text-sm">案件と選考を一元管理</p>
             </div>
 
-            <nav className="hidden lg:flex gap-3 ml-8 flex-wrap">
+            <nav className="hidden lg:flex gap-2 ml-4 xl:ml-8 whitespace-nowrap">
               <button
                 onClick={() => navigateTo('dashboard')}
                 className={`font-semibold transition-colors py-2 px-4 rounded ${
@@ -205,7 +205,7 @@ function App() {
                     : 'text-slate-300 hover:text-white hover:bg-slate-700'
                 }`}
               >
-                案件一覧
+                案件
               </button>
               <button
                 onClick={() => navigateTo('career-sheet')}
@@ -215,7 +215,7 @@ function App() {
                     : 'text-slate-300 hover:text-white hover:bg-slate-700'
                 }`}
               >
-                キャリアシート
+                キャリア
               </button>
               <button
                 onClick={() => navigateTo('interview-logs')}
@@ -225,7 +225,7 @@ function App() {
                     : 'text-slate-300 hover:text-white hover:bg-slate-700'
                 }`}
               >
-                選考管理
+                選考
               </button>
               <button
                 onClick={() => navigateTo('news')}
@@ -258,12 +258,6 @@ function App() {
               <p className="text-sm text-slate-300">{user.email}</p>
               <p className="text-xs text-slate-500">ログイン中</p>
             </div>
-            <button
-              onClick={handleLogout}
-              className="hidden sm:inline-flex bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-white transition-colors text-sm font-semibold"
-            >
-              ログアウト
-            </button>
             <button
               onClick={() => setMenuOpen(true)}
               className="bg-slate-700 hover:bg-slate-600 px-3 py-2 rounded text-white transition-colors shrink-0"

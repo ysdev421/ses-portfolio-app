@@ -229,3 +229,12 @@ export const getInterviewLogs = async (userId) => {
   });
   return logs;
 };
+
+export const updateInterviewLog = async (logId, updates) => {
+  if (!logId) throw new Error('logId is required');
+  const logRef = doc(db, INTERVIEW_LOGS_COLLECTION, logId);
+  await updateDoc(logRef, {
+    ...updates,
+    updatedAt: serverTimestamp(),
+  });
+};

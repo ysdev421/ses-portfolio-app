@@ -1,6 +1,7 @@
 ﻿import { useEffect, useState } from 'react';
 import { createProject, updateProject } from '../services/firestoreService';
 import { normalizeDateString, toYmd } from '../utils/date';
+import CustomDateInput from './CustomDateInput';
 
 const TECH_OPTIONS = [
   'React', 'Vue.js', 'Angular', 'Node.js', 'Python', 'Java', 'C#', 'PHP',
@@ -251,11 +252,24 @@ export default function ProjectForm({ user, project, onSuccess, onCancel }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="min-w-0">
             <label className="block text-slate-300 mb-2 font-semibold">開始日 *</label>
-            <input type="date" lang="ja" name="startDate" value={formData.startDate} onChange={handleChange} required className="w-full min-w-0 bg-slate-700 border border-slate-600 rounded px-4 py-2 text-white" />
+            <CustomDateInput
+              value={formData.startDate}
+              onValueChange={(nextValue) => setFormData((prev) => ({ ...prev, startDate: nextValue }))}
+              required
+              className="w-full min-w-0"
+              inputClassName="w-full min-w-0 bg-slate-700 border border-slate-600 rounded px-4 py-2 text-white"
+              buttonClassName="bg-slate-600 hover:bg-slate-500 text-white text-xs px-3 py-2 rounded shrink-0"
+            />
           </div>
           <div className="min-w-0">
             <label className="block text-slate-300 mb-2 font-semibold">終了日</label>
-            <input type="date" lang="ja" name="endDate" value={formData.endDate} onChange={handleChange} className="w-full min-w-0 bg-slate-700 border border-slate-600 rounded px-4 py-2 text-white" />
+            <CustomDateInput
+              value={formData.endDate}
+              onValueChange={(nextValue) => setFormData((prev) => ({ ...prev, endDate: nextValue }))}
+              className="w-full min-w-0"
+              inputClassName="w-full min-w-0 bg-slate-700 border border-slate-600 rounded px-4 py-2 text-white"
+              buttonClassName="bg-slate-600 hover:bg-slate-500 text-white text-xs px-3 py-2 rounded shrink-0"
+            />
           </div>
         </div>
 
@@ -289,7 +303,13 @@ export default function ProjectForm({ user, project, onSuccess, onCancel }) {
             <div className="space-y-2 bg-slate-700/50 border border-slate-600 rounded-lg p-4">
               {formData.rateHistory.map((entry, idx) => (
                 <div key={idx} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_2fr_auto] gap-2 items-center">
-                  <input type="date" lang="ja" value={entry.date || ''} onChange={(e) => updateRateEntry(idx, 'date', e.target.value)} className="bg-slate-700 border border-slate-600 rounded px-2 py-1.5 text-white text-sm" />
+                  <CustomDateInput
+                    value={entry.date || ''}
+                    onValueChange={(nextValue) => updateRateEntry(idx, 'date', nextValue)}
+                    className="w-full"
+                    inputClassName="w-full bg-slate-700 border border-slate-600 rounded px-2 py-1.5 text-white text-sm"
+                    buttonClassName="bg-slate-600 hover:bg-slate-500 text-white text-xs px-2 py-1.5 rounded shrink-0"
+                  />
                   <input type="number" value={entry.rate} min="0" onChange={(e) => updateRateEntry(idx, 'rate', e.target.value)} className="bg-slate-700 border border-slate-600 rounded px-2 py-1.5 text-white text-sm" placeholder="65" />
                   <input type="text" value={entry.note} onChange={(e) => updateRateEntry(idx, 'note', e.target.value)} className="bg-slate-700 border border-slate-600 rounded px-2 py-1.5 text-white text-sm" placeholder="メモ" />
                   <button type="button" onClick={() => removeRateEntry(idx)} className="text-red-400 hover:text-red-300 text-sm px-1 justify-self-end">削除</button>

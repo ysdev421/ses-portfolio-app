@@ -1,6 +1,7 @@
 ﻿import { useEffect, useState } from 'react';
-import { createInterviewLog, getInterviewLogs } from '../services/firestoreService';
+import { createInterviewLog, getInterviewLogs, updateInterviewLog } from '../services/firestoreService';
 import { normalizeDateString, toYmd, toSlashDate } from '../utils/date';
+import CustomDateInput from './CustomDateInput';
 
 const RESULT_OPTIONS = ['pending', 'passed', 'failed', 'other'];
 const RESULT_LABELS = {
@@ -10,21 +11,24 @@ const RESULT_LABELS = {
   other: 'その他',
 };
 
+const INITIAL_FORM = {
+  interviewDate: toYmd(new Date()),
+  company: '',
+  position: '',
+  discussionSummary: '',
+  result: 'pending',
+  interestLevel: 3,
+  questionsAsked: '',
+  jobSummary: '',
+};
+
 export default function InterviewLogSection({ user }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [logs, setLogs] = useState([]);
-  const [formData, setFormData] = useState({
-    interviewDate: toYmd(new Date()),
-    company: '',
-    position: '',
-    discussionSummary: '',
-    result: 'pending',
-    interestLevel: 3,
-    questionsAsked: '',
-    jobSummary: '',
-  });
+  const [editingId, setEditingId] = useState('');
+  const [formData, setFormData] = useState(INITIAL_FORM);
 
   useEffect(() => {
     const load = async () => {
@@ -46,6 +50,12 @@ export default function InterviewLogSection({ user }) {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const resetForm = () => {
+    setEditingId('');
+    setError('');
+    setFormData({ ...INITIAL_FORM, interviewDate: toYmd(new Date()) });
   };
 
   const handleSubmit = async (e) => {
@@ -71,18 +81,16 @@ export default function InterviewLogSection({ user }) {
         questionsAsked: formData.questionsAsked.trim(),
         jobSummary: formData.jobSummary.trim(),
       };
-      const id = await createInterviewLog(user.uid, payload);
-      setLogs((prev) => [{ id, ...payload }, ...prev]);
-      setFormData({
-        interviewDate: toYmd(new Date()),
-        company: '',
-        position: '',
-        discussionSummary: '',
-        result: 'pending',
-        interestLevel: 3,
-        questionsAsked: '',
-        jobSummary: '',
-      });
+
+      if (editingId) {
+        await updateInterviewLog(editingId, payload);
+        setLogs((prev) => prev.map((log) => (log.id === editingId ? { ...log, ...payload } : log)));
+      } else {
+        const id = await createInterviewLog(user.uid, payload);
+        setLogs((prev) => [{ id, ...payload }, ...prev]);
+      }
+
+      resetForm();
     } catch (err) {
       setError(err.message || '面談日記の保存に失敗しました');
     } finally {
@@ -90,35 +98,52 @@ export default function InterviewLogSection({ user }) {
     }
   };
 
+  const startEdit = (log) => {
+    setError('');
+    setEditingId(log.id);
+    setFormData({
+      interviewDate: normalizeDateString(log.interviewDate) || toYmd(new Date()),
+      company: log.company || '',
+      position: log.position || '',
+      discussionSummary: log.discussionSummary || '',
+      result: log.result || 'pending',
+      interestLevel: Number(log.interestLevel) || 3,
+      questionsAsked: log.questionsAsked || '',
+      jobSummary: log.jobSummary || '',
+    });
+  };
+
   return (
     <div className="bg-slate-800 border border-slate-700 rounded-lg p-4 sm:p-6 space-y-4">
       <div>
         <h3 className="text-xl font-serif font-bold text-amber-400">面談日記</h3>
-        <p className="text-slate-400 text-sm mt-1">
-          どこを受けたか、何を話したか、合否や質問内容を記録します。
-        </p>
+        <p className="text-slate-400 text-sm mt-1">どこを受けたか、何を話したか、合否や質問内容を記録します。</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-3">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <input
-            type="date"
-            lang="ja"
-            name="interviewDate"
-            value={formData.interviewDate}
-            onChange={handleChange}
-            className="bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white"
-            required
-          />
-          <input
-            type="text"
-            name="company"
-            value={formData.company}
-            onChange={handleChange}
-            placeholder="受けた会社名"
-            className="bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white"
-            required
-          />
+          <div>
+            <label className="block text-slate-300 text-sm mb-1">面談日 *</label>
+            <CustomDateInput
+              value={formData.interviewDate}
+              onValueChange={(nextValue) => setFormData((prev) => ({ ...prev, interviewDate: nextValue }))}
+              required
+              inputClassName="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white"
+              buttonClassName="bg-slate-600 hover:bg-slate-500 text-white text-xs px-3 py-2 rounded shrink-0"
+            />
+          </div>
+          <div>
+            <label className="block text-slate-300 text-sm mb-1">受けた会社名 *</label>
+            <input
+              type="text"
+              name="company"
+              value={formData.company}
+              onChange={handleChange}
+              placeholder="受けた会社名"
+              className="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white"
+              required
+            />
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -152,9 +177,7 @@ export default function InterviewLogSection({ user }) {
                 key={value}
                 type="button"
                 onClick={() => setFormData((prev) => ({ ...prev, interestLevel: value }))}
-                className={`text-2xl leading-none transition-colors ${
-                  value <= Number(formData.interestLevel) ? 'text-amber-400' : 'text-slate-500'
-                }`}
+                className={`text-2xl leading-none transition-colors ${value <= Number(formData.interestLevel) ? 'text-amber-400' : 'text-slate-500'}`}
                 aria-label={`希望度 ${value}`}
               >
                 ★
@@ -192,19 +215,26 @@ export default function InterviewLogSection({ user }) {
           className="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white"
         />
 
-        {error && (
-          <div className="bg-red-700/20 border border-red-600 text-red-200 rounded px-3 py-2 text-sm">
-            {error}
-          </div>
-        )}
+        {error && <div className="bg-red-700/20 border border-red-600 text-red-200 rounded px-3 py-2 text-sm">{error}</div>}
 
-        <button
-          type="submit"
-          disabled={saving}
-          className="bg-amber-500 hover:bg-amber-600 disabled:bg-slate-600 text-white font-semibold px-4 py-2 rounded"
-        >
-          {saving ? '保存中...' : '面談日記を追加'}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="submit"
+            disabled={saving}
+            className="bg-amber-500 hover:bg-amber-600 disabled:bg-slate-600 text-white font-semibold px-4 py-2 rounded"
+          >
+            {saving ? '保存中...' : editingId ? '面談日記を更新' : '面談日記を追加'}
+          </button>
+          {editingId && (
+            <button
+              type="button"
+              onClick={resetForm}
+              className="bg-slate-600 hover:bg-slate-500 text-white font-semibold px-4 py-2 rounded"
+            >
+              編集をキャンセル
+            </button>
+          )}
+        </div>
       </form>
 
       <div className="pt-2 border-t border-slate-700">
@@ -222,23 +252,22 @@ export default function InterviewLogSection({ user }) {
                   <span className="bg-slate-800 border border-slate-600 rounded px-2 py-0.5 text-slate-300">
                     {RESULT_LABELS[log.result] || log.result || RESULT_LABELS.pending}
                   </span>
-                  <span className="text-amber-400">
-                    {'★'.repeat(Math.max(1, Math.min(5, Number(log.interestLevel) || 3)))}
-                  </span>
+                  <span className="text-amber-400">{'★'.repeat(Math.max(1, Math.min(5, Number(log.interestLevel) || 3)))}</span>
                 </div>
                 <p className="text-white font-semibold">{log.company}</p>
                 {log.position && <p className="text-slate-300 text-sm mt-1">{log.position}</p>}
+                <div className="mt-2">
+                  <button
+                    type="button"
+                    onClick={() => startEdit(log)}
+                    className="text-sm text-amber-300 hover:text-amber-200 underline"
+                  >
+                    編集
+                  </button>
+                </div>
                 <p className="text-slate-200 text-sm mt-2 whitespace-pre-wrap">{log.discussionSummary}</p>
-                {log.questionsAsked && (
-                  <p className="text-slate-300 text-sm mt-2 whitespace-pre-wrap">
-                    Q: {log.questionsAsked}
-                  </p>
-                )}
-                {log.jobSummary && (
-                  <p className="text-slate-300 text-sm mt-1 whitespace-pre-wrap">
-                    業務: {log.jobSummary}
-                  </p>
-                )}
+                {log.questionsAsked && <p className="text-slate-300 text-sm mt-2 whitespace-pre-wrap">Q: {log.questionsAsked}</p>}
+                {log.jobSummary && <p className="text-slate-300 text-sm mt-1 whitespace-pre-wrap">業務: {log.jobSummary}</p>}
               </div>
             ))}
           </div>

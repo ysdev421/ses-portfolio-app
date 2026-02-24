@@ -9,12 +9,16 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/users/$(request.auth.uid));
     }
 
+    function hasUserDoc() {
+      return isSignedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
     function isAdmin() {
-      return isSignedIn() && userDoc().data.role == "admin";
+      return hasUserDoc() && userDoc().data.role == "admin";
     }
 
     function isDemoUser() {
-      return isSignedIn() && userDoc().data.role == "demo";
+      return hasUserDoc() && userDoc().data.role == "demo";
     }
 
     function isOwner(uid) {

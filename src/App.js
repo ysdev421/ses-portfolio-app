@@ -1,5 +1,6 @@
 import './App.css';
 import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth } from './firebaseConfig';
 import { ensureUserProfile } from './services/firestoreService';
@@ -15,6 +16,7 @@ import SettingsPage from './pages/SettingsPage';
 import ProjectForm from './components/ProjectForm';
 import ProjectList from './components/ProjectList';
 import ProjectDetail from './components/ProjectDetail';
+import { trackEvent } from './utils/analytics';
 
 const normalizePath = (path) => {
   if (!path) return '/';
@@ -23,6 +25,8 @@ const normalizePath = (path) => {
 };
 
 function App() {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState('dashboard');
@@ -30,16 +34,11 @@ function App() {
   const [selectedProject, setSelectedProject] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [settingsTab, setSettingsTab] = useState('account');
-  const [publicPath, setPublicPath] = useState(() => normalizePath(window.location.pathname));
+  const publicPath = normalizePath(location.pathname);
 
   useEffect(() => {
-    const handlePopState = () => {
-      setPublicPath(normalizePath(window.location.pathname));
-    };
-
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
+    trackEvent('page_view', { page_path: publicPath });
+  }, [publicPath]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -67,9 +66,7 @@ function App() {
     try {
       await signOut(auth);
       setUser(null);
-      const nextPath = '/';
-      window.history.pushState({}, '', nextPath);
-      setPublicPath(nextPath);
+      navigate('/', { replace: true });
     } catch (error) {
       console.error('ログアウトエラー:', error);
     }
@@ -77,10 +74,17 @@ function App() {
 
   const navigatePublic = (path) => {
     const nextPath = normalizePath(path);
-    if (nextPath !== publicPath) {
-      window.history.pushState({}, '', nextPath);
-      setPublicPath(nextPath);
-    }
+    if (nextPath !== publicPath) navigate(nextPath);
+  };
+
+  const handleSignupFrom = (source) => {
+    trackEvent('signup_click', { source, page_path: publicPath });
+    navigatePublic('/signup');
+  };
+
+  const handleOpenGuide = (path) => {
+    trackEvent('guide_open', { target_path: path, page_path: publicPath });
+    navigatePublic(path);
   };
 
   const handleProjectSuccess = () => {
@@ -101,8 +105,9 @@ function App() {
     if (publicPath === '/guides') {
       return (
         <GuidesPage
-          onOpenGuide={navigatePublic}
-          onStartSignup={() => navigatePublic('/signup')}
+          onNavigatePublic={handleOpenGuide}
+          onStartLogin={() => navigatePublic('/login')}
+          onStartSignup={() => handleSignupFrom('guides')}
         />
       );
     }
@@ -112,43 +117,21 @@ function App() {
       return (
         <GuideArticlePage
           slug={slug}
-          onNavigatePublic={navigatePublic}
-          onStartSignup={() => navigatePublic('/signup')}
+          onNavigatePublic={handleOpenGuide}
+          onStartLogin={() => navigatePublic('/login')}
+          onStartSignup={() => handleSignupFrom(`guide_article_${slug}`)}
         />
       );
     }
 
     if (publicPath === '/news') {
       return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 text-white">
-          <header className="border-b border-slate-800">
-            <div className="max-w-6xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex items-center justify-between">
-              <button
-                className="text-amber-400 font-serif text-xl font-bold"
-                onClick={() => navigatePublic('/')}
-              >
-                SESキャリア記録
-              </button>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => navigatePublic('/login')}
-                  className="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded text-sm font-semibold"
-                >
-                  ログイン
-                </button>
-                <button
-                  onClick={() => navigatePublic('/signup')}
-                  className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded text-sm font-semibold"
-                >
-                  新規登録
-                </button>
-              </div>
-            </div>
-          </header>
-          <main className="max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-            <NewsPage isPublic onStartSignup={() => navigatePublic('/signup')} />
-          </main>
-        </div>
+        <NewsPage
+          isPublic
+          onStartLogin={() => navigatePublic('/login')}
+          onStartSignup={() => handleSignupFrom('news')}
+          onNavigatePublic={navigatePublic}
+        />
       );
     }
 
@@ -163,10 +146,11 @@ function App() {
 
     return (
       <LandingPage
-        onStartSignup={() => navigatePublic('/signup')}
+        onStartSignup={() => handleSignupFrom('landing')}
         onStartLogin={() => navigatePublic('/login')}
         onOpenNews={() => navigatePublic('/news')}
         onOpenGuides={() => navigatePublic('/guides')}
+        onNavigatePublic={navigatePublic}
       />
     );
   }

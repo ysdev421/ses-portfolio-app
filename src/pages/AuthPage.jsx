@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { auth } from '../firebaseConfig';
 import {
   createUserWithEmailAndPassword,
@@ -7,6 +7,7 @@ import {
   signInWithPopup,
   signInWithRedirect,
 } from 'firebase/auth';
+import { useSeo } from '../utils/seo';
 
 export default function AuthPage({ initialMode = 'login', onBack }) {
   const [isLogin, setIsLogin] = useState(initialMode !== 'signup');
@@ -14,6 +15,24 @@ export default function AuthPage({ initialMode = 'login', onBack }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const seo = useMemo(
+    () =>
+      isLogin
+        ? {
+            title: 'ログイン | SESキャリア記録',
+            description: 'SESキャリア記録にログインして、案件実績と選考ログを管理。',
+            path: '/login',
+          }
+        : {
+            title: '新規登録 | SESキャリア記録',
+            description: 'SESキャリア記録に無料登録して、案件実績と選考ログを一元管理。',
+            path: '/signup',
+          },
+    [isLogin],
+  );
+
+  useSeo(seo);
 
   useEffect(() => {
     setIsLogin(initialMode !== 'signup');
@@ -77,7 +96,7 @@ export default function AuthPage({ initialMode = 'login', onBack }) {
           </button>
         )}
         <h1 className="text-3xl font-serif font-bold text-amber-400 mb-2 text-center">SES キャリア記録</h1>
-        <p className="text-slate-400 text-center mb-8">案件の実績を管理して転職活動をスマートに</p>
+        <p className="text-slate-400 text-center mb-8">案件の実績を記録して転職活動をスマートに</p>
 
         <form onSubmit={handleAuth} className="space-y-4">
           <div>
@@ -99,7 +118,8 @@ export default function AuthPage({ initialMode = 'login', onBack }) {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full bg-slate-800 border border-slate-700 rounded px-4 py-2 text-white placeholder-slate-500"
-              placeholder="••••••••"
+              placeholder="8文字以上"
+              minLength={8}
               required
             />
           </div>
@@ -111,7 +131,7 @@ export default function AuthPage({ initialMode = 'login', onBack }) {
             disabled={loading}
             className="w-full bg-amber-500 hover:bg-amber-600 disabled:bg-slate-600 text-white font-bold py-2 rounded transition-colors"
           >
-            {loading ? 'しばらくお待ちください...' : isLogin ? 'ログイン' : '新規登録'}
+            {loading ? '処理中...' : isLogin ? 'ログイン' : '新規登録'}
           </button>
         </form>
 
@@ -132,7 +152,7 @@ export default function AuthPage({ initialMode = 'login', onBack }) {
 
         <div className="mt-6 text-center">
           <p className="text-slate-400 text-sm">
-            {isLogin ? 'アカウントをお持ちではありませんか?' : 'アカウントをお持ちですか?'}
+            {isLogin ? 'アカウントをお持ちでないですか？' : 'アカウントをお持ちですか？'}
           </p>
           <button
             onClick={() => {
@@ -143,7 +163,7 @@ export default function AuthPage({ initialMode = 'login', onBack }) {
             }}
             className="text-amber-400 hover:text-amber-300 font-semibold mt-2"
           >
-            {isLogin ? '新規登録' : 'ログイン'}
+            {isLogin ? '新規登録へ' : 'ログインへ'}
           </button>
         </div>
       </div>

@@ -1,29 +1,33 @@
 import { useMemo, useState } from 'react';
+import { useSeo } from '../utils/seo';
 
 const sesNews = [
   {
     id: 'ses-1',
-    title: 'IT人材需給に関する調査レポート',
-    summary: '開発需要と人材不足のトレンドを把握し、案件選定やキャリア方針に活かせる内容。',
-    source: '経済産業省 / IPA など',
+    title: 'IT人材市場に関する調査レポート',
+    summary:
+      '需給動向と市場トレンドを確認。案件選びやキャリア方針に活かせる要点を短く整理しています。',
+    source: 'IPA',
     date: '2026-02-01',
     url: 'https://www.ipa.go.jp/',
-    tags: ['SES', '人材市場', '調査'],
+    tags: ['SES', '市場動向', '調査'],
   },
   {
     id: 'ses-2',
-    title: 'フリーランス・準委任契約まわりの実務論点',
-    summary: '契約形態、責任分界、稼働管理など、現場で押さえるべきポイントを整理。',
-    source: '業界メディア',
+    title: 'フリーランス・準委任まわりの実務整理',
+    summary:
+      '契約形態や単価交渉の論点を整理。現場で混乱しやすいポイントを先回りして押さえます。',
+    source: 'Publickey',
     date: '2026-01-20',
     url: 'https://www.publickey1.jp/',
-    tags: ['SES', '契約', '働き方'],
+    tags: ['SES', '契約', '実務'],
   },
   {
     id: 'ses-3',
-    title: 'セキュリティ教育・開発体制強化の最新動向',
-    summary: 'サプライチェーン対策や開発プロセス見直しなど、組織での対応事例を紹介。',
-    source: 'NISC / 主要ベンダー発信',
+    title: 'セキュリティ情報・注意喚起まとめ',
+    summary:
+      '脆弱性と運用上の注意点を確認。参画先での対応に使える一次情報リンクを集約しています。',
+    source: 'NISC',
     date: '2026-01-10',
     url: 'https://www.nisc.go.jp/',
     tags: ['SES', 'セキュリティ', '運用'],
@@ -33,8 +37,9 @@ const sesNews = [
 const techNews = [
   {
     id: 'tech-1',
-    title: 'React のアップデート情報',
-    summary: 'パフォーマンス改善や開発体験に関わる変更点をキャッチアップ。',
+    title: 'React 公式アップデート',
+    summary:
+      'パフォーマンス改善や開発体験の変更点を要約。現場で影響しやすい項目を優先して確認できます。',
     source: 'React Blog',
     date: '2026-02-05',
     url: 'https://react.dev/blog',
@@ -42,18 +47,20 @@ const techNews = [
   },
   {
     id: 'tech-2',
-    title: 'TypeScript リリースノート',
-    summary: '型推論やエラーメッセージ改善など、日々の開発効率に直結する内容。',
-    source: 'TypeScript',
+    title: 'TypeScript リリース情報',
+    summary:
+      '型推論とエラーメッセージ改善の更新を整理。保守性と開発効率に関わる内容を中心に紹介します。',
+    source: 'TypeScript Blog',
     date: '2026-01-28',
     url: 'https://devblogs.microsoft.com/typescript/',
     tags: ['TypeScript', 'Frontend'],
   },
   {
     id: 'tech-3',
-    title: 'Node.js リリース情報',
-    summary: 'LTSやランタイム周りの更新を確認し、運用環境のアップデート判断に活用。',
-    source: 'Node.js',
+    title: 'Node.js LTS 関連情報',
+    summary:
+      'LTS運用に必要な更新を確認。依存関係と運用リスクを抑えるための判断材料をまとめています。',
+    source: 'Node.js Blog',
     date: '2026-01-15',
     url: 'https://nodejs.org/en/blog',
     tags: ['Node.js', 'Backend'],
@@ -67,19 +74,46 @@ const formatDate = (isoDate) =>
     day: '2-digit',
   });
 
-export default function NewsPage() {
+export default function NewsPage({ isPublic = false, onStartSignup, enableSeo = true }) {
   const [tab, setTab] = useState('ses');
-
   const items = useMemo(() => (tab === 'ses' ? sesNews : techNews), [tab]);
+
+  useSeo({
+    enabled: enableSeo,
+    title: 'SESニュース | SESキャリア記録',
+    description:
+      'SES業界と技術トレンドの要点を短く把握できるニュースまとめ。案件選びとキャリア判断に使える一次情報リンク付き。',
+    path: '/news',
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: 'SESニュース',
+      inLanguage: 'ja',
+    },
+  });
 
   return (
     <div>
       <div className="mb-6">
         <h2 className="text-2xl sm:text-3xl font-serif font-bold text-amber-400">ニュース</h2>
         <p className="text-slate-400 text-sm mt-2">
-          SES業界と関連技術の情報をまとめて確認できます。
+          SES業界と関連技術の情報を、実務で使える観点で整理しています。
         </p>
       </div>
+
+      {isPublic && (
+        <div className="mb-6 rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
+          <p className="text-amber-200 text-sm">
+            案件実績を一元管理したい方は、無料登録でダッシュボードを利用できます。
+          </p>
+          <button
+            onClick={onStartSignup}
+            className="mt-3 bg-amber-500 hover:bg-amber-600 text-white font-bold px-4 py-2 rounded transition-colors"
+          >
+            無料で新規登録
+          </button>
+        </div>
+      )}
 
       <div className="flex flex-wrap gap-2 mb-6">
         <button
@@ -137,7 +171,7 @@ export default function NewsPage() {
               rel="noreferrer"
               className="inline-block mt-4 text-amber-400 hover:text-amber-300 text-sm font-semibold"
             >
-              記事を見る →
+              詳細を見る →
             </a>
           </article>
         ))}

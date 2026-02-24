@@ -20,6 +20,7 @@ const strengths = [
 ];
 
 const TRIAL_VIDEO_URL = process.env.REACT_APP_DEMO_VIDEO_URL || '';
+const CONTACT_EMAIL = process.env.REACT_APP_CONTACT_EMAIL || '';
 
 export default function LandingPage({
   onStartSignup,
@@ -62,7 +63,7 @@ export default function LandingPage({
               武器に変える記録へ。
             </h1>
             <p className="text-slate-300 mt-5 leading-relaxed">
-              案件、日報、面談ログをつなげて管理。あとから見返せるデータが、提案・面談・職務経歴書の精度を上げます。
+              案件、日報、面談ログをつなげて管理。あとから見返せるデータが、面談・職務経歴書の精度を上げます。
             </p>
             <div className="flex flex-wrap gap-3 mt-8">
               <button onClick={onStartSignup} className="bg-amber-500 hover:bg-amber-600 text-white font-bold px-6 py-3 rounded">
@@ -136,6 +137,21 @@ export default function LandingPage({
           </div>
         </section>
       </main>
+
+      <footer className="border-t border-slate-800 mt-8">
+        <div className="max-w-6xl mx-auto px-4 py-6 sm:px-6 lg:px-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-sm">
+          <p className="text-slate-400">お問い合わせ</p>
+          {CONTACT_EMAIL ? (
+            <a className="text-amber-300 hover:text-amber-200" href={`mailto:${CONTACT_EMAIL}`}>
+              {CONTACT_EMAIL}
+            </a>
+          ) : (
+            <p className="text-slate-500">
+              連絡先メールは `REACT_APP_CONTACT_EMAIL` を設定してください
+            </p>
+          )}
+        </div>
+      </footer>
     </div>
   );
 }

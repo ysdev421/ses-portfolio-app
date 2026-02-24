@@ -72,6 +72,24 @@ export default function AboutPage({ onNavigatePublic, onStartLogin, onStartSignu
               ※成果条件・対象は広告主ページの最新情報をご確認ください。
             </p>
           </div>
+          <div className="mt-4 rounded-lg border border-slate-700 bg-slate-800 p-4 overflow-x-auto">
+            <a href="https://px.a8.net/svt/ejp?a8mat=4AXISG+2M2ICY+3SWM+626XT" rel="nofollow sponsored noopener noreferrer" target="_blank">
+              <img
+                border="0"
+                width="468"
+                height="60"
+                alt="TechClipsエージェント バナー"
+                src="https://www24.a8.net/svt/bgt?aid=260224864158&wid=001&eno=01&mid=s00000017743001018000&mc=1"
+              />
+            </a>
+            <img
+              border="0"
+              width="1"
+              height="1"
+              src="https://www17.a8.net/0.gif?a8mat=4AXISG+2M2ICY+3SWM+626XT"
+              alt=""
+            />
+          </div>
         </section>
 
         <section className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-6">

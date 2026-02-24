@@ -123,7 +123,7 @@ export default function LandingPage({
             </a>
           ) : (
             <p className="text-slate-500">
-              連絡先メールは `REACT_APP_CONTACT_EMAIL` を設定してください
+              連絡はお問い合わせページからお願いします
             </p>
           )}
         </div>

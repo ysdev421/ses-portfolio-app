@@ -100,7 +100,7 @@ export default function AboutPage({ onNavigatePublic, onStartLogin, onStartSignu
             </a>
           ) : (
             <p className="mt-3 text-sm text-amber-100">
-              連絡先メールは `REACT_APP_CONTACT_EMAIL` を設定してください。
+              連絡はページ内のお問い合わせフォームをご利用ください。
             </p>
           )}
         </section>

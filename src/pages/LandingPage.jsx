@@ -78,7 +78,7 @@ export default function LandingPage({
           </div>
 
           <div className="bg-slate-900/80 border border-slate-700 rounded-2xl p-6">
-            <h2 className="text-xl font-serif font-bold text-amber-400 mb-4">このサービスの強み</h2>
+            <h2 className="text-xl font-serif font-bold text-amber-400 mb-4">このサービスについて</h2>
             <div className="space-y-3">
               {strengths.map((item) => (
                 <div key={item.no} className="bg-slate-800 border border-slate-700 rounded-lg p-4 flex items-start gap-3">

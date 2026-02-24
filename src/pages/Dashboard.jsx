@@ -276,21 +276,6 @@ export default function Dashboard({ user, onNavigate }) {
           </div>
         )}
       </div>
-
-      <div className="flex flex-wrap gap-4">
-        <button
-          onClick={() => onNavigate('projects')}
-          className="bg-slate-700 hover:bg-slate-600 text-white font-bold px-6 py-2 rounded transition-colors"
-        >
-          案件一覧
-        </button>
-        <button
-          onClick={() => onNavigate('career-sheet')}
-          className="bg-emerald-700 hover:bg-emerald-600 text-white font-bold px-6 py-2 rounded transition-colors"
-        >
-          キャリアシート
-        </button>
-      </div>
     </div>
   );
 }

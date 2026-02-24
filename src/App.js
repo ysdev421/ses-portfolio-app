@@ -1,12 +1,13 @@
-import './App.css';
+﻿import './App.css';
 import { useEffect, useState } from 'react';
-import { auth } from './firebaseConfig';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { auth } from './firebaseConfig';
 import { ensureUserProfile } from './services/firestoreService';
 import AuthPage from './pages/AuthPage';
 import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
 import CareerSheet from './pages/CareerSheet';
+import InterviewLogsPage from './pages/InterviewLogsPage';
 import NewsPage from './pages/NewsPage';
 import SettingsPage from './pages/SettingsPage';
 import ProjectForm from './components/ProjectForm';
@@ -36,8 +37,14 @@ function App() {
         setLoading(false);
       }
     });
+
     return () => unsubscribe();
   }, []);
+
+  const navigateTo = (page) => {
+    setCurrentPage(page);
+    setMenuOpen(false);
+  };
 
   const handleLogout = async () => {
     try {
@@ -49,18 +56,9 @@ function App() {
     }
   };
 
-  const handleAddProject = () => {
-    setCurrentPage('add-project');
-  };
-
-  const navigateTo = (page) => {
-    setCurrentPage(page);
-    setMenuOpen(false);
-  };
-
   const handleProjectSuccess = () => {
     setCurrentPage('projects');
-    setRefreshKey(prev => prev + 1);
+    setRefreshKey((prev) => prev + 1);
   };
 
   const handleViewProject = (project) => {
@@ -68,18 +66,8 @@ function App() {
     setCurrentPage('project-detail');
   };
 
-  const handleEditProject = () => {
-    setCurrentPage('edit-project');
-  };
-
-  const handleBackToDetail = () => {
-    setCurrentPage('project-detail');
-  };
-
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800" />
-    );
+    return <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800" />;
   }
 
   if (!user) {
@@ -92,31 +80,25 @@ function App() {
       );
     }
 
-    return (
-      <AuthPage
-        initialMode={authMode}
-        onBack={() => setAuthMode(null)}
-      />
-    );
+    return <AuthPage initialMode={authMode} onBack={() => setAuthMode(null)} />;
   }
 
   return (
     <div className="h-full overflow-y-auto overscroll-y-none bg-gradient-to-br from-slate-900 to-slate-800 text-white">
-      {/* ヘッダー */}
       <header className="bg-slate-950 border-b border-slate-700 shadow-lg sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6 sm:px-6 lg:px-8 flex flex-wrap gap-3 justify-between items-start sm:items-center">
           <div className="flex min-w-0 items-start sm:items-center gap-3 sm:gap-6">
             <div>
-              <h1 
+              <h1
                 className="text-xl sm:text-2xl lg:text-3xl leading-tight font-serif font-bold text-amber-400 cursor-pointer hover:text-amber-300 transition-colors"
                 onClick={() => setCurrentPage('dashboard')}
               >
                 SES キャリア記録
               </h1>
-              <p className="text-slate-400 mt-1 text-sm">案件の実績を管理</p>
+              <p className="text-slate-400 mt-1 text-sm">案件と選考を一元管理</p>
             </div>
-            
-            <nav className="hidden lg:flex gap-6 ml-8">
+
+            <nav className="hidden lg:flex gap-3 ml-8 flex-wrap">
               <button
                 onClick={() => navigateTo('dashboard')}
                 className={`font-semibold transition-colors py-2 px-4 rounded ${
@@ -146,6 +128,16 @@ function App() {
                 }`}
               >
                 キャリアシート
+              </button>
+              <button
+                onClick={() => navigateTo('interview-logs')}
+                className={`font-semibold transition-colors py-2 px-4 rounded ${
+                  currentPage === 'interview-logs'
+                    ? 'text-amber-400 bg-slate-700'
+                    : 'text-slate-300 hover:text-white hover:bg-slate-700'
+                }`}
+              >
+                選考管理
               </button>
               <button
                 onClick={() => navigateTo('news')}
@@ -219,6 +211,7 @@ function App() {
               <button onClick={() => navigateTo('dashboard')} className="w-full text-left bg-slate-800 hover:bg-slate-700 rounded px-3 py-2">ダッシュボード</button>
               <button onClick={() => navigateTo('projects')} className="w-full text-left bg-slate-800 hover:bg-slate-700 rounded px-3 py-2">案件一覧</button>
               <button onClick={() => navigateTo('career-sheet')} className="w-full text-left bg-slate-800 hover:bg-slate-700 rounded px-3 py-2">キャリアシート</button>
+              <button onClick={() => navigateTo('interview-logs')} className="w-full text-left bg-slate-800 hover:bg-slate-700 rounded px-3 py-2">選考管理</button>
               <button onClick={() => navigateTo('news')} className="w-full text-left bg-slate-800 hover:bg-slate-700 rounded px-3 py-2">ニュース</button>
             </div>
 
@@ -235,7 +228,7 @@ function App() {
                 }}
                 className="w-full text-left bg-slate-800 hover:bg-slate-700 rounded px-3 py-2"
               >
-                アカウント情報
+                アカウント設定
               </button>
               <button
                 onClick={() => {
@@ -253,7 +246,7 @@ function App() {
                 }}
                 className="w-full text-left bg-slate-800 hover:bg-slate-700 rounded px-3 py-2"
               >
-                問い合わせ履歴
+                送信履歴
               </button>
             </div>
 
@@ -267,7 +260,6 @@ function App() {
         </div>
       )}
 
-      {/* メインコンテンツ */}
       <main className="max-w-7xl mx-auto px-4 py-5 sm:py-8 sm:px-6 lg:px-8">
         {currentPage === 'dashboard' && (
           <Dashboard
@@ -283,28 +275,22 @@ function App() {
         )}
 
         {currentPage === 'projects' && (
-          <ProjectList 
+          <ProjectList
             user={user}
-            onAddProject={handleAddProject}
+            onAddProject={() => setCurrentPage('add-project')}
             onViewProject={handleViewProject}
             onRefresh={refreshKey}
           />
         )}
 
-        {currentPage === 'career-sheet' && (
-          <CareerSheet
-            user={user}
-          />
-        )}
+        {currentPage === 'career-sheet' && <CareerSheet user={user} />}
+
+        {currentPage === 'interview-logs' && <InterviewLogsPage user={user} />}
 
         {currentPage === 'news' && <NewsPage />}
 
         {currentPage === 'settings' && (
-          <SettingsPage
-            user={user}
-            tab={settingsTab}
-            onTabChange={setSettingsTab}
-          />
+          <SettingsPage user={user} tab={settingsTab} onTabChange={setSettingsTab} />
         )}
 
         {currentPage === 'add-project' && (
@@ -320,7 +306,7 @@ function App() {
             user={user}
             project={selectedProject}
             onBack={() => setCurrentPage('projects')}
-            onEdit={handleEditProject}
+            onEdit={() => setCurrentPage('edit-project')}
           />
         )}
 
@@ -329,7 +315,7 @@ function App() {
             user={user}
             project={selectedProject}
             onSuccess={handleProjectSuccess}
-            onCancel={handleBackToDetail}
+            onCancel={() => setCurrentPage('project-detail')}
           />
         )}
       </main>

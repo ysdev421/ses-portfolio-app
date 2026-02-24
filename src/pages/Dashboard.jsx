@@ -181,6 +181,21 @@ export default function Dashboard({ user, onNavigate }) {
         </div>
       )}
 
+      {(stats.activeCount ?? 0) === 0 && (
+        <div className="bg-indigo-500/10 border border-indigo-500/40 rounded-lg p-6 mb-8">
+          <p className="text-indigo-300 font-semibold text-lg">選考管理を進めましょう</p>
+          <p className="text-slate-300 text-sm mt-2">
+            参画中案件がないため、面談日記を更新して応募先や会話内容、合否を整理できます。
+          </p>
+          <button
+            onClick={() => onNavigate('interview-logs')}
+            className="mt-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-5 py-2 rounded transition-colors"
+          >
+            面談日記を開く
+          </button>
+        </div>
+      )}
+
       {stats.totalProjects === 0 && (
         <div className="bg-amber-500/10 border border-amber-500/40 rounded-lg p-6 mb-8">
           <p className="text-amber-300 font-semibold text-lg">最初に案件を1件登録しましょう</p>

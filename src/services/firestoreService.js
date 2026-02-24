@@ -15,6 +15,7 @@ import { db } from '../firebaseConfig';
 
 const PROJECTS_COLLECTION = 'projects';
 const USERS_COLLECTION = 'users';
+const INTERVIEW_LOGS_COLLECTION = 'interviewLogs';
 
 // 案件作成
 export const createProject = async (userId, projectData) => {
@@ -197,4 +198,34 @@ export const getUserProfile = async (uid) => {
   const snapshot = await getDoc(userRef);
   if (!snapshot.exists()) return null;
   return { id: snapshot.id, ...snapshot.data() };
+};
+
+export const createInterviewLog = async (userId, logData) => {
+  if (!userId) throw new Error('userId is required');
+  const docRef = await addDoc(collection(db, INTERVIEW_LOGS_COLLECTION), {
+    userId,
+    ...logData,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+  return docRef.id;
+};
+
+export const getInterviewLogs = async (userId) => {
+  if (!userId) return [];
+  const q = query(
+    collection(db, INTERVIEW_LOGS_COLLECTION),
+    where('userId', '==', userId)
+  );
+  const snapshot = await getDocs(q);
+  const logs = snapshot.docs.map((log) => ({
+    id: log.id,
+    ...log.data(),
+  }));
+  logs.sort((a, b) => {
+    const timeA = a.createdAt?.toMillis?.() || 0;
+    const timeB = b.createdAt?.toMillis?.() || 0;
+    return timeB - timeA;
+  });
+  return logs;
 };

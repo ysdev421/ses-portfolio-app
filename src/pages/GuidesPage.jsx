@@ -1,3 +1,4 @@
+import PublicHeader from '../components/PublicHeader';
 import { guides } from '../data/guides';
 import { useSeo } from '../utils/seo';
 
@@ -8,11 +9,10 @@ const formatDate = (value) =>
     day: '2-digit',
   });
 
-export default function GuidesPage({ onOpenGuide, onStartSignup }) {
+export default function GuidesPage({ onNavigatePublic, onStartLogin, onStartSignup }) {
   useSeo({
     title: 'SESガイド一覧 | SESキャリア記録',
-    description:
-      'SESエンジニア向けに、職務経歴書、スキルシート、面談対策など実務で使えるガイドを公開。',
+    description: 'SESエンジニア向けに、職務経歴書・面談対策・案件選定の実務ガイドを公開。',
     path: '/guides',
     jsonLd: {
       '@context': 'https://schema.org',
@@ -24,24 +24,16 @@ export default function GuidesPage({ onOpenGuide, onStartSignup }) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 text-white">
-      <header className="border-b border-slate-800">
-        <div className="max-w-6xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex items-center justify-between">
-          <button className="text-amber-400 font-serif text-xl font-bold" onClick={() => onOpenGuide('/')}>
-            SESキャリア記録
-          </button>
-          <button
-            onClick={onStartSignup}
-            className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded text-sm font-semibold"
-          >
-            無料で新規登録
-          </button>
-        </div>
-      </header>
+      <PublicHeader
+        onNavigatePublic={onNavigatePublic}
+        onStartLogin={onStartLogin}
+        onStartSignup={onStartSignup}
+      />
 
       <main className="max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <h1 className="text-3xl sm:text-4xl font-serif font-bold text-amber-400">SESガイド一覧</h1>
         <p className="text-slate-300 text-sm mt-2">
-          職務経歴書、スキルシート、面談対策など、現場で使える実務ガイドを順次公開します。
+          職務経歴書、スキルシート、面談対策など、現場で使える実務ガイドを公開しています。
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
@@ -54,7 +46,7 @@ export default function GuidesPage({ onOpenGuide, onStartSignup }) {
                 更新日: {formatDate(guide.updatedAt)} ・ 読了目安: {guide.readingMinutes}分
               </div>
               <button
-                onClick={() => onOpenGuide(`/guides/${guide.slug}`)}
+                onClick={() => onNavigatePublic(`/guides/${guide.slug}`)}
                 className="mt-4 text-amber-400 hover:text-amber-300 text-sm font-semibold"
               >
                 記事を読む →

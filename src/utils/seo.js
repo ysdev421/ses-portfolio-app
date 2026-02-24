@@ -68,14 +68,10 @@ export const useSeo = ({
     upsertMeta('name', 'twitter:description', description);
     upsertMeta('name', 'twitter:image', imageUrl);
 
-    if (jsonLd) {
-      upsertJsonLd('page', jsonLd);
-    }
+    if (jsonLd) upsertJsonLd('page', jsonLd);
 
     return () => {
-      if (previousTitle) {
-        document.title = previousTitle;
-      }
+      if (previousTitle) document.title = previousTitle;
     };
   }, [description, enabled, image, jsonLd, path, title, type]);
 };

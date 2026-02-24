@@ -1,6 +1,13 @@
+import PublicHeader from '../components/PublicHeader';
 import { useSeo } from '../utils/seo';
 
-export default function LandingPage({ onStartSignup, onStartLogin, onOpenNews, onOpenGuides }) {
+export default function LandingPage({
+  onStartSignup,
+  onStartLogin,
+  onOpenNews,
+  onOpenGuides,
+  onNavigatePublic,
+}) {
   useSeo({
     title: 'SESキャリア記録 | SESエンジニア向け案件・選考管理',
     description:
@@ -23,6 +30,12 @@ export default function LandingPage({ onStartSignup, onStartLogin, onOpenNews, o
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 text-white">
+      <PublicHeader
+        onNavigatePublic={onNavigatePublic}
+        onStartLogin={onStartLogin}
+        onStartSignup={onStartSignup}
+      />
+
       <main className="max-w-6xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
         <section className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
           <div>
@@ -74,7 +87,7 @@ export default function LandingPage({ onStartSignup, onStartLogin, onOpenNews, o
               </div>
               <div className="bg-slate-800 border border-slate-700 rounded-lg p-4">
                 <p className="font-semibold">日報で使える実績を可視化</p>
-                <p className="text-slate-400 text-sm mt-1">「何をやったか」を日次で残し、面談時にすぐ提示できます。</p>
+                <p className="text-slate-400 text-sm mt-1">日次ログを残し、面談時にすぐ提示できます。</p>
               </div>
               <div className="bg-slate-800 border border-slate-700 rounded-lg p-4">
                 <p className="font-semibold">キャリアシート出力</p>

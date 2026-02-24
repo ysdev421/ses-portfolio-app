@@ -1,3 +1,4 @@
+import PublicHeader from '../components/PublicHeader';
 import { guideMap } from '../data/guides';
 import { useSeo } from '../utils/seo';
 
@@ -8,7 +9,12 @@ const formatDate = (value) =>
     day: '2-digit',
   });
 
-export default function GuideArticlePage({ slug, onNavigatePublic, onStartSignup }) {
+export default function GuideArticlePage({
+  slug,
+  onNavigatePublic,
+  onStartLogin,
+  onStartSignup,
+}) {
   const article = guideMap[slug];
 
   useSeo({
@@ -34,15 +40,22 @@ export default function GuideArticlePage({ slug, onNavigatePublic, onStartSignup
 
   if (!article) {
     return (
-      <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center px-4">
-        <div className="text-center">
-          <p className="text-slate-300">記事が見つかりませんでした。</p>
-          <button
-            onClick={() => onNavigatePublic('/guides')}
-            className="mt-4 text-amber-400 hover:text-amber-300 font-semibold"
-          >
-            ガイド一覧へ戻る
-          </button>
+      <div className="min-h-screen bg-slate-950 text-white">
+        <PublicHeader
+          onNavigatePublic={onNavigatePublic}
+          onStartLogin={onStartLogin}
+          onStartSignup={onStartSignup}
+        />
+        <div className="flex items-center justify-center px-4 pt-20">
+          <div className="text-center">
+            <p className="text-slate-300">記事が見つかりませんでした。</p>
+            <button
+              onClick={() => onNavigatePublic('/guides')}
+              className="mt-4 text-amber-400 hover:text-amber-300 font-semibold"
+            >
+              ガイド一覧へ戻る
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -50,19 +63,11 @@ export default function GuideArticlePage({ slug, onNavigatePublic, onStartSignup
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 text-white">
-      <header className="border-b border-slate-800">
-        <div className="max-w-4xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex items-center justify-between">
-          <button className="text-amber-400 font-serif text-xl font-bold" onClick={() => onNavigatePublic('/guides')}>
-            SESガイド
-          </button>
-          <button
-            onClick={onStartSignup}
-            className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded text-sm font-semibold"
-          >
-            無料で新規登録
-          </button>
-        </div>
-      </header>
+      <PublicHeader
+        onNavigatePublic={onNavigatePublic}
+        onStartLogin={onStartLogin}
+        onStartSignup={onStartSignup}
+      />
 
       <main className="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <nav className="text-xs text-slate-400">

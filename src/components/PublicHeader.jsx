@@ -1,4 +1,11 @@
-export default function PublicHeader({ onNavigatePublic, onStartLogin, onStartSignup }) {
+export default function PublicHeader({
+  onNavigatePublic,
+  onStartLogin,
+  onStartSignup,
+  onStartDemoLogin,
+}) {
+  const handleTrial = onStartDemoLogin || (() => onNavigatePublic('/demo'));
+
   return (
     <header className="border-b border-slate-800">
       <div className="max-w-6xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3">
@@ -11,7 +18,7 @@ export default function PublicHeader({ onNavigatePublic, onStartLogin, onStartSi
 
         <div className="flex items-center gap-2 flex-wrap justify-end">
           <button
-            onClick={() => onNavigatePublic('/demo')}
+            onClick={handleTrial}
             className="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded text-sm font-semibold"
           >
             体験版
@@ -32,7 +39,7 @@ export default function PublicHeader({ onNavigatePublic, onStartLogin, onStartSi
             onClick={() => onNavigatePublic('/about')}
             className="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white px-3 py-2 rounded text-sm font-semibold"
           >
-            運営者情報
+            このサービスについて
           </button>
           <button
             onClick={onStartLogin}

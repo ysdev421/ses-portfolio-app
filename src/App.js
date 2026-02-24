@@ -1,7 +1,7 @@
 import './App.css';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { auth } from './firebaseConfig';
 import { ensureUserProfile } from './services/firestoreService';
 import AuthPage from './pages/AuthPage';
@@ -89,6 +89,25 @@ function App() {
     navigatePublic(path);
   };
 
+  const handleDemoLogin = async (source) => {
+    const demoEmail = process.env.REACT_APP_DEMO_EMAIL;
+    const demoPassword = process.env.REACT_APP_DEMO_PASSWORD;
+
+    trackEvent('trial_login_click', { source, page_path: publicPath });
+
+    if (!demoEmail || !demoPassword) {
+      window.alert('体験版ログインの設定が未完了です。REACT_APP_DEMO_EMAIL / REACT_APP_DEMO_PASSWORD を設定してください。');
+      return;
+    }
+
+    try {
+      await signInWithEmailAndPassword(auth, demoEmail, demoPassword);
+    } catch (error) {
+      console.error('体験版ログインエラー:', error);
+      window.alert('体験版ログインに失敗しました。時間をおいて再度お試しください。');
+    }
+  };
+
   const handleProjectSuccess = () => {
     setCurrentPage('projects');
     setRefreshKey((prev) => prev + 1);
@@ -143,6 +162,7 @@ function App() {
           onNavigatePublic={navigatePublic}
           onStartLogin={() => navigatePublic('/login')}
           onStartSignup={() => handleSignupFrom('demo')}
+          onStartDemoLogin={() => handleDemoLogin('demo_page')}
         />
       );
     }
@@ -153,6 +173,7 @@ function App() {
           onNavigatePublic={navigatePublic}
           onStartLogin={() => navigatePublic('/login')}
           onStartSignup={() => handleSignupFrom('about')}
+          onStartDemoLogin={() => handleDemoLogin('about')}
         />
       );
     }
@@ -172,8 +193,9 @@ function App() {
         onStartLogin={() => navigatePublic('/login')}
         onOpenNews={() => navigatePublic('/news')}
         onOpenGuides={() => navigatePublic('/guides')}
-        onOpenDemo={() => navigatePublic('/demo')}
+        onOpenDemo={() => handleDemoLogin('landing')}
         onNavigatePublic={navigatePublic}
+        onStartDemoLogin={() => handleDemoLogin('landing')}
       />
     );
   }

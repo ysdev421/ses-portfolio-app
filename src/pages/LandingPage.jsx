@@ -48,6 +48,7 @@ export default function LandingPage({
         onNavigatePublic={onNavigatePublic}
         onStartLogin={onStartLogin}
         onStartSignup={onStartSignup}
+        onStartDemoLogin={onOpenDemo}
       />
 
       <main className="max-w-6xl mx-auto px-4 py-12 sm:px-6 lg:px-8 space-y-16">

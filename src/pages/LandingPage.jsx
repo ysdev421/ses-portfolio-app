@@ -24,8 +24,6 @@ const TRIAL_VIDEO_URL = process.env.REACT_APP_DEMO_VIDEO_URL || '';
 export default function LandingPage({
   onStartSignup,
   onStartLogin,
-  onOpenNews,
-  onOpenGuides,
   onOpenDemo,
   onNavigatePublic,
 }) {
@@ -72,12 +70,6 @@ export default function LandingPage({
               </button>
               <button onClick={onOpenDemo} className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-6 py-3 rounded">
                 体験版を見る
-              </button>
-              <button onClick={onOpenNews} className="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-bold px-6 py-3 rounded">
-                ニュース
-              </button>
-              <button onClick={onOpenGuides} className="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-bold px-6 py-3 rounded">
-                ガイド
               </button>
             </div>
           </div>

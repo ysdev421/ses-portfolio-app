@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { createInterviewLog, getInterviewLogs } from '../services/firestoreService';
 import { normalizeDateString, toYmd, toSlashDate } from '../utils/date';
 
@@ -103,6 +103,7 @@ export default function InterviewLogSection({ user }) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <input
             type="date"
+            lang="ja"
             name="interviewDate"
             value={formData.interviewDate}
             onChange={handleChange}

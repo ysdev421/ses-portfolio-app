@@ -1,15 +1,13 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { createProject, updateProject } from '../services/firestoreService';
-import { normalizeDateString, toSlashDate } from '../utils/date';
+import { normalizeDateString, toYmd } from '../utils/date';
 
 const TECH_OPTIONS = [
   'React', 'Vue.js', 'Angular', 'Node.js', 'Python', 'Java', 'C#', 'PHP',
   'TypeScript', 'Docker', 'AWS', 'GCP', 'Azure', 'Figma', 'UI/UX',
 ];
 
-const PHASE_OPTIONS = [
-  '要件定義', '基本設計', '詳細設計', '実装', 'テスト', '運用保守',
-];
+const PHASE_OPTIONS = ['要件定義', '基本設計', '詳細設計', '実装', 'テスト', '運用保守'];
 
 const TIER_OPTIONS = [
   { value: 'direct', label: '直請け', intermediaries: 0 },
@@ -24,27 +22,36 @@ const INTERMEDIARY_LABELS = ['一次請け会社', '二次請け会社', '三次
 const getIntermediaryCount = (tier) =>
   TIER_OPTIONS.find((t) => t.value === tier)?.intermediaries ?? 0;
 
+const toInputDate = (value) => {
+  if (!value) return '';
+  if (typeof value === 'string') return normalizeDateString(value);
+  const date = value?.toDate?.() || new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  return toYmd(date);
+};
+
+const createInitialFormData = () => ({
+  projectName: '',
+  company: '',
+  startDate: '',
+  endDate: '',
+  role: '',
+  skills: [],
+  phases: [],
+  description: '',
+  contractTier: 'direct',
+  intermediaryCompanies: [],
+  monthlyRate: '',
+  rateHistory: [],
+});
+
 export default function ProjectForm({ user, project, onSuccess, onCancel }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [customSkillInput, setCustomSkillInput] = useState('');
+  const [formData, setFormData] = useState(createInitialFormData());
   const isEditMode = !!project;
-
-  const [formData, setFormData] = useState({
-    projectName: '',
-    company: '',
-    startDate: '',
-    endDate: '',
-    role: '',
-    skills: [],
-    phases: [],
-    description: '',
-    contractTier: 'direct',
-    intermediaryCompanies: [],
-    monthlyRate: '',
-    rateHistory: [],
-  });
 
   useEffect(() => {
     if (!isEditMode || !project) return;
@@ -57,8 +64,8 @@ export default function ProjectForm({ user, project, onSuccess, onCancel }) {
     setFormData({
       projectName: project.projectName || '',
       company: project.company || '',
-      startDate: project.startDate || '',
-      endDate: project.endDate || '',
+      startDate: toInputDate(project.startDate),
+      endDate: toInputDate(project.endDate),
       role: project.role || '',
       skills: project.skills || [],
       phases: project.phases || [],
@@ -66,7 +73,10 @@ export default function ProjectForm({ user, project, onSuccess, onCancel }) {
       contractTier: tier,
       intermediaryCompanies: padded,
       monthlyRate: project.monthlyRate || '',
-      rateHistory: project.rateHistory || [],
+      rateHistory: (project.rateHistory || []).map((entry) => ({
+        ...entry,
+        date: toInputDate(entry?.date),
+      })),
     });
   }, [isEditMode, project]);
 
@@ -78,10 +88,14 @@ export default function ProjectForm({ user, project, onSuccess, onCancel }) {
   const handleTierChange = (e) => {
     const tier = e.target.value;
     const count = getIntermediaryCount(tier);
-    setFormData((prev) => {
-      const next = Array.from({ length: count }, (_, i) => prev.intermediaryCompanies[i] || '');
-      return { ...prev, contractTier: tier, intermediaryCompanies: next };
-    });
+    setFormData((prev) => ({
+      ...prev,
+      contractTier: tier,
+      intermediaryCompanies: Array.from(
+        { length: count },
+        (_, i) => prev.intermediaryCompanies[i] || ''
+      ),
+    }));
   };
 
   const handleIntermediaryChange = (idx, value) => {
@@ -118,7 +132,10 @@ export default function ProjectForm({ user, project, onSuccess, onCancel }) {
   };
 
   const removeSkill = (skill) => {
-    setFormData((prev) => ({ ...prev, skills: prev.skills.filter((s) => s !== skill) }));
+    setFormData((prev) => ({
+      ...prev,
+      skills: prev.skills.filter((s) => s !== skill),
+    }));
   };
 
   const addRateEntry = () => {
@@ -170,21 +187,8 @@ export default function ProjectForm({ user, project, onSuccess, onCancel }) {
         setSuccessMsg('案件を更新しました');
       } else {
         await createProject(user.uid, payload);
-        setSuccessMsg('案件を作成しました');
-        setFormData({
-          projectName: '',
-          company: '',
-          startDate: '',
-          endDate: '',
-          role: '',
-          skills: [],
-          phases: [],
-          description: '',
-          contractTier: 'direct',
-          intermediaryCompanies: [],
-          monthlyRate: '',
-          rateHistory: [],
-        });
+        setSuccessMsg('案件を追加しました');
+        setFormData(createInitialFormData());
       }
 
       setTimeout(() => {
@@ -204,7 +208,7 @@ export default function ProjectForm({ user, project, onSuccess, onCancel }) {
   return (
     <div className="bg-slate-800 border border-slate-700 rounded-lg p-4 sm:p-6 max-w-2xl">
       <h2 className="text-2xl font-serif font-bold text-amber-400 mb-6">
-        {isEditMode ? '案件を編集' : '新規案件を追加'}
+        {isEditMode ? '案件を編集' : '新しい案件を追加'}
       </h2>
 
       {successMsg && (
@@ -237,7 +241,7 @@ export default function ProjectForm({ user, project, onSuccess, onCancel }) {
           <div className="space-y-2 bg-slate-700/50 border border-slate-600 rounded-lg p-4">
             {Array.from({ length: intermediaryCount }).map((_, idx) => (
               <div key={idx}>
-                <label className="block text-slate-400 text-xs mb-1">{INTERMEDIARY_LABELS[idx] || `${idx + 1}次会社`}</label>
+                <label className="block text-slate-400 text-xs mb-1">{INTERMEDIARY_LABELS[idx] || `${idx + 1}次請け会社`}</label>
                 <input type="text" value={formData.intermediaryCompanies[idx] || ''} onChange={(e) => handleIntermediaryChange(idx, e.target.value)} className="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white text-sm" />
               </div>
             ))}
@@ -247,11 +251,11 @@ export default function ProjectForm({ user, project, onSuccess, onCancel }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="min-w-0">
             <label className="block text-slate-300 mb-2 font-semibold">開始日 *</label>
-            <input type="text" name="startDate" value={toSlashDate(formData.startDate)} onChange={handleChange} inputMode="numeric" pattern="\\d{4}/\\d{1,2}/\\d{1,2}" placeholder="YYYY/MM/DD" required className="w-full min-w-0 bg-slate-700 border border-slate-600 rounded px-4 py-2 text-white" />
+            <input type="date" lang="ja" name="startDate" value={formData.startDate} onChange={handleChange} required className="w-full min-w-0 bg-slate-700 border border-slate-600 rounded px-4 py-2 text-white" />
           </div>
           <div className="min-w-0">
             <label className="block text-slate-300 mb-2 font-semibold">終了日</label>
-            <input type="text" name="endDate" value={toSlashDate(formData.endDate)} onChange={handleChange} inputMode="numeric" pattern="\\d{4}/\\d{1,2}/\\d{1,2}" placeholder="YYYY/MM/DD" className="w-full min-w-0 bg-slate-700 border border-slate-600 rounded px-4 py-2 text-white" />
+            <input type="date" lang="ja" name="endDate" value={formData.endDate} onChange={handleChange} className="w-full min-w-0 bg-slate-700 border border-slate-600 rounded px-4 py-2 text-white" />
           </div>
         </div>
 
@@ -285,7 +289,7 @@ export default function ProjectForm({ user, project, onSuccess, onCancel }) {
             <div className="space-y-2 bg-slate-700/50 border border-slate-600 rounded-lg p-4">
               {formData.rateHistory.map((entry, idx) => (
                 <div key={idx} className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_2fr_auto] gap-2 items-center">
-                  <input type="text" value={toSlashDate(entry.date)} onChange={(e) => updateRateEntry(idx, 'date', e.target.value)} inputMode="numeric" pattern="\\d{4}/\\d{1,2}/\\d{1,2}" placeholder="YYYY/MM/DD" className="bg-slate-700 border border-slate-600 rounded px-2 py-1.5 text-white text-sm" />
+                  <input type="date" lang="ja" value={entry.date || ''} onChange={(e) => updateRateEntry(idx, 'date', e.target.value)} className="bg-slate-700 border border-slate-600 rounded px-2 py-1.5 text-white text-sm" />
                   <input type="number" value={entry.rate} min="0" onChange={(e) => updateRateEntry(idx, 'rate', e.target.value)} className="bg-slate-700 border border-slate-600 rounded px-2 py-1.5 text-white text-sm" placeholder="65" />
                   <input type="text" value={entry.note} onChange={(e) => updateRateEntry(idx, 'note', e.target.value)} className="bg-slate-700 border border-slate-600 rounded px-2 py-1.5 text-white text-sm" placeholder="メモ" />
                   <button type="button" onClick={() => removeRateEntry(idx)} className="text-red-400 hover:text-red-300 text-sm px-1 justify-self-end">削除</button>
@@ -329,7 +333,7 @@ export default function ProjectForm({ user, project, onSuccess, onCancel }) {
 
         <div className="flex flex-col sm:flex-row gap-3 pt-4">
           <button type="submit" disabled={loading} className="flex-1 bg-amber-500 hover:bg-amber-600 disabled:bg-slate-600 text-white font-bold py-2 rounded transition-colors">
-            {loading ? '処理中...' : isEditMode ? '更新する' : '案件を作成'}
+            {loading ? '保存中...' : isEditMode ? '更新する' : '案件を追加'}
           </button>
           <button type="button" onClick={onCancel} className="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded transition-colors">キャンセル</button>
         </div>

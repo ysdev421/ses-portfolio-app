@@ -5,60 +5,126 @@ import { useSeo } from '../utils/seo';
 const sesNews = [
   {
     id: 'ses-1',
-    title: 'IT人材市場に関する調査レポート',
-    summary: '需給動向と市場トレンドを確認。案件選びやキャリア方針に使える要点を短く整理。',
-    source: 'IPA',
-    date: '2026-02-01',
-    url: 'https://www.ipa.go.jp/',
-    tags: ['SES', '市場動向', '調査'],
+    title: 'SES案件の単価交渉で押さえるべき観点（実績・再現性・市場感）',
+    summary:
+      '単価交渉を通すために必要な準備を整理した実務向け記事。案件ログと面談ログの使い方が分かります。',
+    source: 'SESキャリア記録ガイド',
+    date: '2026-02-20',
+    url: '/guides/ses-rate-negotiation',
+    tags: ['SES', '単価交渉', 'ガイド'],
   },
   {
     id: 'ses-2',
-    title: 'フリーランス・準委任まわりの実務整理',
-    summary: '契約形態や単価交渉の論点を整理。現場で混乱しやすいポイントを先回りして確認。',
-    source: 'Publickey',
-    date: '2026-01-20',
-    url: 'https://www.publickey1.jp/',
-    tags: ['SES', '契約', '実務'],
+    title: 'SES案件比較チェックリスト（技術 / 単価 / 体制）',
+    summary:
+      '提案案件を比較するときに迷わないためのチェックポイントをまとめた記事。案件一覧の活用例付き。',
+    source: 'SESキャリア記録ガイド',
+    date: '2026-02-19',
+    url: '/guides/ses-project-comparison',
+    tags: ['SES', '案件選定', 'ガイド'],
   },
   {
     id: 'ses-3',
-    title: 'セキュリティ情報・注意喚起まとめ',
-    summary: '脆弱性と運用上の注意点を確認。参画先で使える一次情報リンクを集約。',
-    source: 'NISC',
-    date: '2026-01-10',
-    url: 'https://www.nisc.go.jp/',
-    tags: ['SES', 'セキュリティ', '運用'],
+    title: 'SESで成長できる案件の特徴',
+    summary:
+      '技術スタックと工程の観点から、成長に繋がる案件の見分け方を具体化。',
+    source: 'SESキャリア記録ガイド',
+    date: '2026-02-18',
+    url: '/guides/ses-growth-projects',
+    tags: ['SES', 'キャリア', 'ガイド'],
+  },
+  {
+    id: 'ses-4',
+    title: 'Qiita: SES タグ',
+    summary:
+      'SESに関する実務記事が継続的に投稿されるタグページ。現場の知見収集に使えます。',
+    source: 'Qiita',
+    date: '2026-02-10',
+    url: 'https://qiita.com/tags/ses',
+    tags: ['SES', 'ブログ'],
+  },
+  {
+    id: 'ses-5',
+    title: 'Zenn: SES トピック',
+    summary:
+      'SES・受託・キャリア関連の実践記事がまとまっているトピック。',
+    source: 'Zenn',
+    date: '2026-02-08',
+    url: 'https://zenn.dev/topics/ses',
+    tags: ['SES', 'ブログ'],
+  },
+  {
+    id: 'ses-6',
+    title: 'レバテックキャリアガイド',
+    summary:
+      'エンジニアの転職・キャリア情報を継続的にチェックできるメディア。',
+    source: 'レバテック',
+    date: '2026-02-05',
+    url: 'https://career.levtech.jp/guide/',
+    tags: ['キャリア', 'ブログ'],
   },
 ];
 
 const techNews = [
   {
     id: 'tech-1',
-    title: 'React 公式アップデート',
-    summary: 'パフォーマンス改善や開発体験の変更点を要約。現場で影響が大きい項目を優先して把握。',
-    source: 'React Blog',
-    date: '2026-02-05',
+    title: 'React Blog',
+    summary:
+      'React本体の変更点を追う公式ブログ。新機能や移行の注意点を確認できます。',
+    source: 'React',
+    date: '2026-02-15',
     url: 'https://react.dev/blog',
     tags: ['React', 'Frontend'],
   },
   {
     id: 'tech-2',
-    title: 'TypeScript リリース情報',
-    summary: '型推論とエラーメッセージ改善の更新を整理。保守性と開発効率に関わる内容を確認。',
-    source: 'TypeScript Blog',
-    date: '2026-01-28',
+    title: 'TypeScript Blog',
+    summary:
+      'TypeScriptの新機能・破壊的変更・アップグレード方針を確認できる公式ブログ。',
+    source: 'Microsoft',
+    date: '2026-02-14',
     url: 'https://devblogs.microsoft.com/typescript/',
     tags: ['TypeScript', 'Frontend'],
   },
   {
     id: 'tech-3',
-    title: 'Node.js LTS 関連情報',
-    summary: 'LTS運用に必要な更新を確認。依存関係と運用リスクを抑える判断材料をまとめ。',
-    source: 'Node.js Blog',
-    date: '2026-01-15',
+    title: 'Node.js Blog',
+    summary:
+      'LTS情報やセキュリティアップデートを確認できる公式ブログ。',
+    source: 'Node.js',
+    date: '2026-02-12',
     url: 'https://nodejs.org/en/blog',
     tags: ['Node.js', 'Backend'],
+  },
+  {
+    id: 'tech-4',
+    title: 'Firebase Release Notes',
+    summary:
+      'Auth / Firestore / Hosting の仕様変更や新機能を追える公式リリースノート。',
+    source: 'Firebase',
+    date: '2026-02-11',
+    url: 'https://firebase.google.com/support/release-notes',
+    tags: ['Firebase', 'Backend'],
+  },
+  {
+    id: 'tech-5',
+    title: 'Vercel Changelog',
+    summary:
+      'デプロイ基盤の変更点を確認できる公式変更履歴。',
+    source: 'Vercel',
+    date: '2026-02-09',
+    url: 'https://vercel.com/changelog',
+    tags: ['Vercel', 'Infra'],
+  },
+  {
+    id: 'tech-6',
+    title: 'Publickey（クラウド / 開発基盤ニュース）',
+    summary:
+      'インフラ・開発基盤のトレンドを横断的に追える国内技術ニュースサイト。',
+    source: 'Publickey',
+    date: '2026-02-07',
+    url: 'https://www.publickey1.jp/',
+    tags: ['Infra', 'ニュース'],
   },
 ];
 
@@ -83,7 +149,7 @@ export default function NewsPage({
     enabled: enableSeo,
     title: 'SESニュース | SESキャリア記録',
     description:
-      'SES業界と技術トレンドの要点を短く把握できるニュースまとめ。案件選びとキャリア判断に使える一次情報リンク付き。',
+      'SES業界と技術トレンドを短く把握できるニュースまとめ。具体的な記事リンクと公式ブログへの導線を掲載。',
     path: '/news',
     jsonLd: {
       '@context': 'https://schema.org',
@@ -106,14 +172,14 @@ export default function NewsPage({
         <div className="mb-6">
           <h2 className="text-2xl sm:text-3xl font-serif font-bold text-amber-400">ニュース</h2>
           <p className="text-slate-400 text-sm mt-2">
-            SES業界と関連技術の情報を、実務で使える観点で整理しています。
+            具体的な記事リンクと、継続的に読むべきブログをまとめています。
           </p>
         </div>
 
         {isPublic && (
           <div className="mb-6 rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
             <p className="text-amber-200 text-sm">
-              案件実績を一元管理したい方は、無料登録でダッシュボードを利用できます。
+              体験版で使い勝手を確認したら、無料登録で案件・日報・面談ログを記録できます。
             </p>
             <button
               onClick={onStartSignup}
@@ -134,7 +200,7 @@ export default function NewsPage({
                 : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
             }`}
           >
-            SES業界ニュース
+            SES/キャリア
           </button>
           <button
             type="button"
@@ -145,7 +211,7 @@ export default function NewsPage({
                 : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
             }`}
           >
-            技術ニュース
+            技術/プロダクト
           </button>
         </div>
 
@@ -176,8 +242,8 @@ export default function NewsPage({
 
               <a
                 href={item.url}
-                target="_blank"
-                rel="noreferrer"
+                target={item.url.startsWith('/') ? '_self' : '_blank'}
+                rel={item.url.startsWith('/') ? undefined : 'noreferrer'}
                 className="inline-block mt-4 text-amber-400 hover:text-amber-300 text-sm font-semibold"
               >
                 詳細を見る →

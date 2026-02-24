@@ -140,7 +140,12 @@ export default function LandingPage({
 
       <footer className="border-t border-slate-800 mt-8">
         <div className="max-w-6xl mx-auto px-4 py-6 sm:px-6 lg:px-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-sm">
-          <p className="text-slate-400">お問い合わせ</p>
+          <div className="flex items-center gap-4">
+            <p className="text-slate-400">お問い合わせ</p>
+            <button onClick={() => onNavigatePublic('/about')} className="text-slate-300 hover:text-white">
+              運営者情報
+            </button>
+          </div>
           {CONTACT_EMAIL ? (
             <a className="text-amber-300 hover:text-amber-200" href={`mailto:${CONTACT_EMAIL}`}>
               {CONTACT_EMAIL}

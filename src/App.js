@@ -13,6 +13,7 @@ import NewsPage from './pages/NewsPage';
 import GuidesPage from './pages/GuidesPage';
 import GuideArticlePage from './pages/GuideArticlePage';
 import DemoPage from './pages/DemoPage';
+import AboutPage from './pages/AboutPage';
 import SettingsPage from './pages/SettingsPage';
 import ProjectForm from './components/ProjectForm';
 import ProjectList from './components/ProjectList';
@@ -142,6 +143,16 @@ function App() {
           onNavigatePublic={navigatePublic}
           onStartLogin={() => navigatePublic('/login')}
           onStartSignup={() => handleSignupFrom('demo')}
+        />
+      );
+    }
+
+    if (publicPath === '/about') {
+      return (
+        <AboutPage
+          onNavigatePublic={navigatePublic}
+          onStartLogin={() => navigatePublic('/login')}
+          onStartSignup={() => handleSignupFrom('about')}
         />
       );
     }

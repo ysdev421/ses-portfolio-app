@@ -10,7 +10,7 @@ const fileText = fs.readFileSync(guidesFile, 'utf8');
 const slugMatches = [...fileText.matchAll(/slug:\s*'([^']+)'/g)];
 const slugs = slugMatches.map((match) => match[1]);
 
-const staticPaths = ['/', '/demo', '/news', '/guides'];
+const staticPaths = ['/', '/about', '/demo', '/news', '/guides'];
 const guidePaths = slugs.map((slug) => `/guides/${slug}`);
 const allPaths = [...staticPaths, ...guidePaths];
 
@@ -26,7 +26,7 @@ const lines = [
   ...allPaths.map((pathName) => {
     const fullUrl = `${siteUrl}${pathName}`;
     if (pathName === '/') return renderUrl(fullUrl, 'weekly', '1.0');
-    if (pathName === '/demo' || pathName === '/news' || pathName === '/guides') {
+    if (pathName === '/about' || pathName === '/demo' || pathName === '/news' || pathName === '/guides') {
       return renderUrl(fullUrl, 'weekly', '0.9');
     }
     return renderUrl(fullUrl, 'monthly', '0.8');

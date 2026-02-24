@@ -12,6 +12,7 @@ import InterviewLogsPage from './pages/InterviewLogsPage';
 import NewsPage from './pages/NewsPage';
 import GuidesPage from './pages/GuidesPage';
 import GuideArticlePage from './pages/GuideArticlePage';
+import DemoPage from './pages/DemoPage';
 import SettingsPage from './pages/SettingsPage';
 import ProjectForm from './components/ProjectForm';
 import ProjectList from './components/ProjectList';
@@ -135,6 +136,16 @@ function App() {
       );
     }
 
+    if (publicPath === '/demo') {
+      return (
+        <DemoPage
+          onNavigatePublic={navigatePublic}
+          onStartLogin={() => navigatePublic('/login')}
+          onStartSignup={() => handleSignupFrom('demo')}
+        />
+      );
+    }
+
     if (publicPath === '/login' || publicPath === '/signup') {
       return (
         <AuthPage
@@ -150,6 +161,7 @@ function App() {
         onStartLogin={() => navigatePublic('/login')}
         onOpenNews={() => navigatePublic('/news')}
         onOpenGuides={() => navigatePublic('/guides')}
+        onOpenDemo={() => navigatePublic('/demo')}
         onNavigatePublic={navigatePublic}
       />
     );

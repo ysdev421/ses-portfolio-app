@@ -1,17 +1,36 @@
 import PublicHeader from '../components/PublicHeader';
 import { useSeo } from '../utils/seo';
 
+const steps = [
+  {
+    step: '01',
+    title: '案件を登録',
+    desc: '参画期間・役割・スキルを案件単位で保存',
+  },
+  {
+    step: '02',
+    title: '面談ログを記録',
+    desc: '質問・回答・結果を残して次回改善',
+  },
+  {
+    step: '03',
+    title: 'キャリア情報を出力',
+    desc: '職務経歴書に転用しやすい形で蓄積',
+  },
+];
+
 export default function LandingPage({
   onStartSignup,
   onStartLogin,
   onOpenNews,
   onOpenGuides,
+  onOpenDemo,
   onNavigatePublic,
 }) {
   useSeo({
-    title: 'SESキャリア記録 | SESエンジニア向け案件・選考管理',
+    title: 'SESキャリア記録 | 案件・面談・キャリアを一元管理',
     description:
-      'SESエンジニア向けに、案件の実績・面談ログ・スキル棚卸しをまとめて管理できるWebアプリです。',
+      'SESエンジニア向けに、案件実績・面談ログ・キャリア情報を一つにまとめるWebアプリ。',
     path: '/',
     jsonLd: {
       '@context': 'https://schema.org',
@@ -20,11 +39,6 @@ export default function LandingPage({
       applicationCategory: 'BusinessApplication',
       operatingSystem: 'Web',
       inLanguage: 'ja',
-      offers: {
-        '@type': 'Offer',
-        price: '0',
-        priceCurrency: 'JPY',
-      },
     },
   });
 
@@ -36,7 +50,7 @@ export default function LandingPage({
         onStartSignup={onStartSignup}
       />
 
-      <main className="max-w-6xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
+      <main className="max-w-6xl mx-auto px-4 py-12 sm:px-6 lg:px-8 space-y-16">
         <section className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
           <div>
             <p className="inline-block bg-amber-500/20 text-amber-300 text-xs font-bold px-3 py-1 rounded-full border border-amber-500/40 mb-5">
@@ -45,54 +59,71 @@ export default function LandingPage({
             <h1 className="text-4xl sm:text-5xl font-serif font-bold leading-tight">
               案件経験を、
               <br />
-              武器に変える記録に。
+              武器に変える記録へ。
             </h1>
             <p className="text-slate-300 mt-5 leading-relaxed">
-              参画案件・日報・スキルをまとめて管理。あとから振り返って、面談や職務経歴書に使える実績を残せます。
+              案件、日報、面談ログをつなげて管理。あとから見返せるデータが、提案・面談・職務経歴書の精度を上げます。
             </p>
             <div className="flex flex-wrap gap-3 mt-8">
-              <button
-                onClick={onStartSignup}
-                className="bg-amber-500 hover:bg-amber-600 text-white font-bold px-6 py-3 rounded transition-colors"
-              >
+              <button onClick={onStartSignup} className="bg-amber-500 hover:bg-amber-600 text-white font-bold px-6 py-3 rounded">
                 無料で新規登録
               </button>
-              <button
-                onClick={onStartLogin}
-                className="bg-slate-700 hover:bg-slate-600 text-white font-bold px-6 py-3 rounded transition-colors"
-              >
-                ログイン
+              <button onClick={onOpenDemo} className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-6 py-3 rounded">
+                デモを見る
               </button>
-              <button
-                onClick={onOpenNews}
-                className="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-bold px-6 py-3 rounded transition-colors"
-              >
-                ニュースを見る
+              <button onClick={onOpenNews} className="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-bold px-6 py-3 rounded">
+                ニュース
               </button>
-              <button
-                onClick={onOpenGuides}
-                className="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-bold px-6 py-3 rounded transition-colors"
-              >
-                ガイドを見る
+              <button onClick={onOpenGuides} className="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-bold px-6 py-3 rounded">
+                ガイド
               </button>
             </div>
           </div>
 
           <div className="bg-slate-900/80 border border-slate-700 rounded-2xl p-6">
-            <h2 className="text-xl font-serif font-bold text-amber-400 mb-4">このサービスでできること</h2>
+            <h2 className="text-xl font-serif font-bold text-amber-400 mb-4">3ステップ機能ツアー</h2>
             <div className="space-y-3">
-              <div className="bg-slate-800 border border-slate-700 rounded-lg p-4">
-                <p className="font-semibold">案件ごとの進捗管理</p>
-                <p className="text-slate-400 text-sm mt-1">参画期間・担当工程・使用スキルを案件単位で整理。</p>
+              {steps.map((s) => (
+                <div key={s.step} className="bg-slate-800 border border-slate-700 rounded-lg p-4 flex items-start gap-3">
+                  <span className="text-amber-300 text-xs font-bold bg-amber-500/20 border border-amber-500/30 rounded px-2 py-1">
+                    {s.step}
+                  </span>
+                  <div>
+                    <p className="font-semibold">{s.title}</p>
+                    <p className="text-slate-400 text-sm mt-1">{s.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+          <div className="rounded-2xl border border-slate-700 bg-slate-900 p-5">
+            <p className="text-sm text-amber-300 font-semibold mb-2">デモ動画（60秒）</p>
+            <div className="rounded-xl border border-slate-700 bg-slate-950 h-64 flex items-center justify-center">
+              <div className="text-center">
+                <p className="text-slate-200 font-semibold">操作デモを見る</p>
+                <p className="text-slate-400 text-sm mt-1">案件登録 → 面談ログ → キャリア整理</p>
+                <button onClick={onOpenDemo} className="mt-4 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded text-sm font-semibold">
+                  デモモードを開く
+                </button>
               </div>
-              <div className="bg-slate-800 border border-slate-700 rounded-lg p-4">
-                <p className="font-semibold">日報で使える実績を可視化</p>
-                <p className="text-slate-400 text-sm mt-1">日次ログを残し、面談時にすぐ提示できます。</p>
-              </div>
-              <div className="bg-slate-800 border border-slate-700 rounded-lg p-4">
-                <p className="font-semibold">キャリアシート出力</p>
-                <p className="text-slate-400 text-sm mt-1">実績をもとに、職務経歴に転用しやすい情報を蓄積。</p>
-              </div>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-amber-500/40 bg-amber-500/10 p-5">
+            <h3 className="text-xl font-serif font-bold text-amber-300">まずは触って確認</h3>
+            <p className="text-amber-100 text-sm mt-3">
+              文章だけでは伝わりづらいので、ログイン不要のデモモードを用意しています。実際の入力体験で判断してください。
+            </p>
+            <div className="mt-5 flex flex-wrap gap-3">
+              <button onClick={onOpenDemo} className="bg-amber-500 hover:bg-amber-600 text-white font-bold px-5 py-2 rounded">
+                デモを開く
+              </button>
+              <button onClick={onStartSignup} className="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-bold px-5 py-2 rounded">
+                そのまま無料登録
+              </button>
             </div>
           </div>
         </section>

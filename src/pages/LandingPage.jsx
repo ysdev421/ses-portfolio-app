@@ -4,22 +4,22 @@ import { useSeo } from '../utils/seo';
 const steps = [
   {
     step: '01',
-    title: '案件を登録',
-    desc: '参画期間・役割・スキルを案件単位で保存',
+    title: '経歴情報が積み上がる',
+    desc: '案件・日報・面談ログを時系列で蓄積',
   },
   {
     step: '02',
-    title: '面談ログを記録',
-    desc: '質問・回答・結果を残して次回改善',
+    title: '技術スタックごとの経験が見える',
+    desc: '技術別の経験期間を可視化して強みを明確化',
   },
   {
     step: '03',
-    title: 'キャリア情報を出力',
-    desc: '職務経歴書に転用しやすい形で蓄積',
+    title: '提案・面談・職務経歴書に再利用できる',
+    desc: '記録した情報をそのまま次の行動に転用',
   },
 ];
 
-const DEMO_VIDEO_URL = process.env.REACT_APP_DEMO_VIDEO_URL || '';
+const TRIAL_VIDEO_URL = process.env.REACT_APP_DEMO_VIDEO_URL || '';
 
 export default function LandingPage({
   onStartSignup,
@@ -71,7 +71,7 @@ export default function LandingPage({
                 無料で新規登録
               </button>
               <button onClick={onOpenDemo} className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-6 py-3 rounded">
-                デモを見る
+                体験版を見る
               </button>
               <button onClick={onOpenNews} className="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-bold px-6 py-3 rounded">
                 ニュース
@@ -83,7 +83,7 @@ export default function LandingPage({
           </div>
 
           <div className="bg-slate-900/80 border border-slate-700 rounded-2xl p-6">
-            <h2 className="text-xl font-serif font-bold text-amber-400 mb-4">3ステップ機能ツアー</h2>
+            <h2 className="text-xl font-serif font-bold text-amber-400 mb-4">このSaaSの強み</h2>
             <div className="space-y-3">
               {steps.map((s) => (
                 <div key={s.step} className="bg-slate-800 border border-slate-700 rounded-lg p-4 flex items-start gap-3">
@@ -102,12 +102,12 @@ export default function LandingPage({
 
         <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
           <div className="rounded-2xl border border-slate-700 bg-slate-900 p-5">
-            <p className="text-sm text-amber-300 font-semibold mb-2">デモ動画（60秒）</p>
-            {DEMO_VIDEO_URL ? (
+            <p className="text-sm text-amber-300 font-semibold mb-2">体験動画（60秒）</p>
+            {TRIAL_VIDEO_URL ? (
               <div className="rounded-xl border border-slate-700 overflow-hidden bg-black">
                 <video
                   className="w-full h-64 object-cover"
-                  src={DEMO_VIDEO_URL}
+                  src={TRIAL_VIDEO_URL}
                   controls
                   playsInline
                   preload="metadata"
@@ -121,7 +121,7 @@ export default function LandingPage({
                     `REACT_APP_DEMO_VIDEO_URL` を設定すると動画を表示します
                   </p>
                   <button onClick={onOpenDemo} className="mt-4 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded text-sm font-semibold">
-                    先にデモモードを開く
+                    先に体験版を開く
                   </button>
                 </div>
               </div>
@@ -131,11 +131,11 @@ export default function LandingPage({
           <div className="rounded-2xl border border-amber-500/40 bg-amber-500/10 p-5">
             <h3 className="text-xl font-serif font-bold text-amber-300">まずは触って確認</h3>
             <p className="text-amber-100 text-sm mt-3">
-              文章だけでは伝わりづらいので、ログイン不要のデモモードを用意しています。実際の入力体験で判断してください。
+              文章だけでは伝わりづらいので、ログイン不要の体験版を用意しています。実際の入力体験で判断してください。
             </p>
             <div className="mt-5 flex flex-wrap gap-3">
               <button onClick={onOpenDemo} className="bg-amber-500 hover:bg-amber-600 text-white font-bold px-5 py-2 rounded">
-                デモを開く
+                体験版を開く
               </button>
               <button onClick={onStartSignup} className="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-bold px-5 py-2 rounded">
                 そのまま無料登録

@@ -14,7 +14,7 @@ export default function PublicHeader({ onNavigatePublic, onStartLogin, onStartSi
             onClick={() => onNavigatePublic('/demo')}
             className="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded text-sm font-semibold"
           >
-            デモ
+            体験版
           </button>
           <button
             onClick={() => onNavigatePublic('/news')}

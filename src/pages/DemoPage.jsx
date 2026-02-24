@@ -12,7 +12,7 @@ export default function DemoPage({ onNavigatePublic, onStartLogin, onStartSignup
   const [tab, setTab] = useState('projects');
 
   useSeo({
-    title: 'デモモード | SESキャリア記録',
+    title: '体験版 | SESキャリア記録',
     description: 'ログイン不要で、SESキャリア記録の主要機能を体験できます。',
     path: '/demo',
   });
@@ -27,9 +27,9 @@ export default function DemoPage({ onNavigatePublic, onStartLogin, onStartSignup
 
       <main className="max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-6">
-          <h1 className="text-3xl sm:text-4xl font-serif font-bold text-amber-400">デモモード</h1>
+          <h1 className="text-3xl sm:text-4xl font-serif font-bold text-amber-400">体験版</h1>
           <p className="text-slate-300 text-sm mt-2">
-            ログイン不要で機能を確認できます。実データには保存されません。
+            ログイン不要で機能を確認できます。体験版の入力データは保存されません。
           </p>
         </div>
 
@@ -72,7 +72,7 @@ export default function DemoPage({ onNavigatePublic, onStartLogin, onStartSignup
             <h2 className="text-xl font-bold text-amber-300">面談ログ（サンプル）</h2>
             <div className="mt-4 space-y-3">
               {[
-                ['2026/02/20', '質問: 得意領域は？', '回答: Reactの画面設計と改善施策の提案経験あり'],
+                ['2026/02/20', '質問: 得意領域は？', '回答: Reactの画面設計と改善提案の経験あり'],
                 ['2026/02/10', '質問: 参画までの立ち上がりは？', '回答: 初週で仕様把握、2週目で改善提案まで実施'],
               ].map((row) => (
                 <div key={row[0]} className="rounded-lg border border-slate-700 bg-slate-800 p-4">
@@ -106,7 +106,9 @@ export default function DemoPage({ onNavigatePublic, onStartLogin, onStartSignup
         )}
 
         <div className="mt-8 rounded-xl border border-amber-500/40 bg-amber-500/10 p-5">
-          <p className="text-amber-100 text-sm">このまま実データで使い始める場合は無料登録へ進んでください。</p>
+          <p className="text-amber-100 text-sm">
+            このまま実データで使い始める場合は、無料登録へ進んでください。
+          </p>
           <button onClick={onStartSignup} className="mt-3 bg-amber-500 hover:bg-amber-600 text-white font-bold px-5 py-2 rounded">
             無料で新規登録
           </button>

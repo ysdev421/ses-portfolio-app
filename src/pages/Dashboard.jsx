@@ -167,7 +167,7 @@ export default function Dashboard({ user, onNavigate }) {
             案件の期間・担当工程・スキルを記録しておくと、職務経歴の整理が楽になります。
           </p>
           <button
-            onClick={() => onNavigate('add-project')}
+            onClick={() => onNavigate('projects')}
             className="mt-4 bg-amber-500 hover:bg-amber-600 text-white font-bold px-5 py-2 rounded transition-colors"
           >
             案件を追加する
@@ -278,12 +278,6 @@ export default function Dashboard({ user, onNavigate }) {
       </div>
 
       <div className="flex flex-wrap gap-4">
-        <button
-          onClick={() => onNavigate('add-project')}
-          className="bg-amber-500 hover:bg-amber-600 text-white font-bold px-6 py-2 rounded transition-colors"
-        >
-          + 案件を追加
-        </button>
         <button
           onClick={() => onNavigate('projects')}
           className="bg-slate-700 hover:bg-slate-600 text-white font-bold px-6 py-2 rounded transition-colors"

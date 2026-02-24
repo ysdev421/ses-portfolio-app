@@ -1,21 +1,21 @@
 import PublicHeader from '../components/PublicHeader';
 import { useSeo } from '../utils/seo';
 
-const steps = [
+const strengths = [
   {
-    step: '01',
+    no: '01',
     title: '経歴情報が積み上がる',
-    desc: '案件・日報・面談ログを時系列で蓄積',
+    desc: '案件・日報・面談ログを時系列で蓄積し、いつでも振り返れます。',
   },
   {
-    step: '02',
+    no: '02',
     title: '技術スタックごとの経験が見える',
-    desc: '技術別の経験期間を可視化して強みを明確化',
+    desc: '技術別の経験期間を可視化し、強みと不足を明確にできます。',
   },
   {
-    step: '03',
+    no: '03',
     title: '提案・面談・職務経歴書に再利用できる',
-    desc: '記録した情報をそのまま次の行動に転用',
+    desc: '記録した情報をそのまま次の行動に転用できるので準備が早くなります。',
   },
 ];
 
@@ -85,14 +85,14 @@ export default function LandingPage({
           <div className="bg-slate-900/80 border border-slate-700 rounded-2xl p-6">
             <h2 className="text-xl font-serif font-bold text-amber-400 mb-4">このSaaSの強み</h2>
             <div className="space-y-3">
-              {steps.map((s) => (
-                <div key={s.step} className="bg-slate-800 border border-slate-700 rounded-lg p-4 flex items-start gap-3">
+              {strengths.map((item) => (
+                <div key={item.no} className="bg-slate-800 border border-slate-700 rounded-lg p-4 flex items-start gap-3">
                   <span className="text-amber-300 text-xs font-bold bg-amber-500/20 border border-amber-500/30 rounded px-2 py-1">
-                    {s.step}
+                    {item.no}
                   </span>
                   <div>
-                    <p className="font-semibold">{s.title}</p>
-                    <p className="text-slate-400 text-sm mt-1">{s.desc}</p>
+                    <p className="font-semibold">{item.title}</p>
+                    <p className="text-slate-400 text-sm mt-1">{item.desc}</p>
                   </div>
                 </div>
               ))}

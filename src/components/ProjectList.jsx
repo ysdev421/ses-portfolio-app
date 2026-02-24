@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { getProjects, deleteProject } from '../services/firestoreService';
 import useToast from '../hooks/useToast';
 import { parseDateInput, toSlashDate, isActiveProject } from '../utils/date';
+import CustomDateInput from './CustomDateInput';
 
 export default function ProjectList({ user, onAddProject, onViewProject, onRefresh }) {
   const [projects, setProjects] = useState([]);
@@ -226,24 +227,19 @@ export default function ProjectList({ user, onAddProject, onViewProject, onRefre
                     <option key={phase} value={phase}>{phase}</option>
                   ))}
                 </select>
-                <input
-                  type="text"
-                  value={toSlashDate(fromDate)}
-                  onChange={(e) => setFromDate(e.target.value)}
-                  inputMode="numeric"
-                  pattern="\\d{4}/\\d{1,2}/\\d{1,2}"
-                  placeholder="YYYY/MM/DD"
-                  className="bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white"
+                <CustomDateInput
+                  value={fromDate}
+                  onValueChange={setFromDate}
+                  inputClassName="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white"
+                  buttonClassName="bg-slate-600 hover:bg-slate-500 text-white text-xs px-3 py-2 rounded shrink-0"
                 />
                 <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={toSlashDate(toDate)}
-                    onChange={(e) => setToDate(e.target.value)}
-                    inputMode="numeric"
-                    pattern="\\d{4}/\\d{1,2}/\\d{1,2}"
-                    placeholder="YYYY/MM/DD"
-                    className="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white"
+                  <CustomDateInput
+                    value={toDate}
+                    onValueChange={setToDate}
+                    className="w-full"
+                    inputClassName="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white"
+                    buttonClassName="bg-slate-600 hover:bg-slate-500 text-white text-xs px-3 py-2 rounded shrink-0"
                   />
                   <button
                     type="button"

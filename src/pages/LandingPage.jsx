@@ -96,7 +96,7 @@ export default function LandingPage({
         <section className="rounded-2xl border border-amber-500/40 bg-amber-500/10 p-5">
             <h3 className="text-xl font-serif font-bold text-amber-300">まずは触って確認</h3>
             <p className="text-amber-100 text-sm mt-3">
-              文章だけでは伝わりづらいので、ログイン不要の体験版を用意しています。実際の入力体験で判断してください。
+              ログイン不要の体験版を用意しています。実際の入力体験で判断してください。
             </p>
             <div className="mt-5 flex flex-wrap gap-3">
               <button onClick={onOpenDemo} className="bg-amber-500 hover:bg-amber-600 text-white font-bold px-5 py-2 rounded">

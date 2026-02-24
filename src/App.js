@@ -9,6 +9,8 @@ import Dashboard from './pages/Dashboard';
 import CareerSheet from './pages/CareerSheet';
 import InterviewLogsPage from './pages/InterviewLogsPage';
 import NewsPage from './pages/NewsPage';
+import GuidesPage from './pages/GuidesPage';
+import GuideArticlePage from './pages/GuideArticlePage';
 import SettingsPage from './pages/SettingsPage';
 import ProjectForm from './components/ProjectForm';
 import ProjectList from './components/ProjectList';
@@ -96,6 +98,26 @@ function App() {
   }
 
   if (!user) {
+    if (publicPath === '/guides') {
+      return (
+        <GuidesPage
+          onOpenGuide={navigatePublic}
+          onStartSignup={() => navigatePublic('/signup')}
+        />
+      );
+    }
+
+    if (publicPath.startsWith('/guides/')) {
+      const slug = publicPath.replace('/guides/', '');
+      return (
+        <GuideArticlePage
+          slug={slug}
+          onNavigatePublic={navigatePublic}
+          onStartSignup={() => navigatePublic('/signup')}
+        />
+      );
+    }
+
     if (publicPath === '/news') {
       return (
         <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 text-white">
@@ -144,6 +166,7 @@ function App() {
         onStartSignup={() => navigatePublic('/signup')}
         onStartLogin={() => navigatePublic('/login')}
         onOpenNews={() => navigatePublic('/news')}
+        onOpenGuides={() => navigatePublic('/guides')}
       />
     );
   }

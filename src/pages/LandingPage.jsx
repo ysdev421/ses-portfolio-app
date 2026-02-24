@@ -1,6 +1,6 @@
 import { useSeo } from '../utils/seo';
 
-export default function LandingPage({ onStartSignup, onStartLogin, onOpenNews }) {
+export default function LandingPage({ onStartSignup, onStartLogin, onOpenNews, onOpenGuides }) {
   useSeo({
     title: 'SESキャリア記録 | SESエンジニア向け案件・選考管理',
     description:
@@ -55,6 +55,12 @@ export default function LandingPage({ onStartSignup, onStartLogin, onOpenNews })
                 className="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-bold px-6 py-3 rounded transition-colors"
               >
                 ニュースを見る
+              </button>
+              <button
+                onClick={onOpenGuides}
+                className="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-bold px-6 py-3 rounded transition-colors"
+              >
+                ガイドを見る
               </button>
             </div>
           </div>

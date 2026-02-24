@@ -47,7 +47,10 @@ function App() {
       try {
         setUser(currentUser);
         if (currentUser) {
-          await ensureUserProfile(currentUser);
+          const demoEmail = (process.env.REACT_APP_DEMO_EMAIL || '').trim().toLowerCase();
+          const currentEmail = (currentUser.email || '').trim().toLowerCase();
+          const forcedRole = demoEmail && currentEmail === demoEmail ? 'demo' : null;
+          await ensureUserProfile(currentUser, forcedRole);
         }
       } catch (error) {
         console.error('ユーザープロフィール初期化エラー:', error);

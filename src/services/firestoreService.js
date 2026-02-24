@@ -173,23 +173,32 @@ export const deleteEntry = async (entryId) => {
   }
 };
 
-export const ensureUserProfile = async (user) => {
+export const ensureUserProfile = async (user, forcedRole = null) => {
   if (!user?.uid) return null;
   const userRef = doc(db, USERS_COLLECTION, user.uid);
   const snapshot = await getDoc(userRef);
+  const nextRole = forcedRole || 'user';
   if (!snapshot.exists()) {
     const now = serverTimestamp();
     await setDoc(userRef, {
       uid: user.uid,
       email: user.email || '',
       displayName: user.displayName || '',
-      role: 'user',
+      role: nextRole,
       createdAt: now,
       updatedAt: now,
     });
-    return { uid: user.uid, email: user.email || '', displayName: user.displayName || '', role: 'user' };
+    return { uid: user.uid, email: user.email || '', displayName: user.displayName || '', role: nextRole };
   }
-  return { id: snapshot.id, ...snapshot.data() };
+  const current = snapshot.data();
+  if (forcedRole && current?.role !== forcedRole) {
+    await updateDoc(userRef, {
+      role: forcedRole,
+      updatedAt: serverTimestamp(),
+    });
+    return { id: snapshot.id, ...current, role: forcedRole };
+  }
+  return { id: snapshot.id, ...current };
 };
 
 export const getUserProfile = async (uid) => {

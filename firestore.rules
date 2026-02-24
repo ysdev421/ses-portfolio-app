@@ -26,7 +26,7 @@ service cloud.firestore {
     }
 
     function canWriteAs(uid) {
-      return isOwner(uid) && !isDemoUser();
+      return isOwner(uid) && hasUserDoc() && !isDemoUser();
     }
 
     match /users/{userId} {
